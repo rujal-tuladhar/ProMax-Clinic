@@ -1,5 +1,6 @@
 
 /* -----------------
+
 fonts 
 --------------*/
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
@@ -10,8 +11,8 @@ fonts
  ------------*/
 :root{
     --main-color: #eaa023;
-    --dark: #5e1313;
-    --dark-light: #730808;
+    --dark: #1065aa;
+    --dark-light: #0b73a7;
     --white: #ffffff;
     --white-light: #c8c8c8;
     --shadow: 0 0 15px rgba(0,0,0,0.25);
