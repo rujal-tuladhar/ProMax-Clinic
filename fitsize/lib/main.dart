@@ -6,6 +6,7 @@ import 'screens/capture_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/results_screen.dart';
+import 'screens/turn_capture_screen.dart';
 import 'services/profile_store.dart';
 
 void main() {
@@ -46,6 +47,7 @@ class FitSizeApp extends StatelessWidget {
         '/': (_) => const _StartupGate(),
         '/onboarding': (_) => const OnboardingScreen(),
         '/capture': (_) => const CaptureScreen(),
+        '/capture-turn': (_) => const TurnCaptureScreen(),
         '/results': (_) => const ResultsScreen(),
       },
     );

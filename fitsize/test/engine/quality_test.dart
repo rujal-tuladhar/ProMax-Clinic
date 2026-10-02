@@ -193,4 +193,41 @@ void main() {
           contains('closer'));
     });
   });
+
+  group('checkTurnPose', () {
+    test('a framed, centred person at any yaw passes', () {
+      // Front A-pose geometry is framed+centred; the turn gate ignores the
+      // arm/facing rules, so it must pass.
+      expect(checkTurnPose(frontPose(), imgW, imgH).okNow, isTrue);
+      // A side-facing pose (would fail the front "facing" rule) also passes
+      // the turn gate because only framing matters mid-turn.
+      expect(checkTurnPose(sidePose(), imgW, imgH).okNow, isTrue);
+    });
+
+    test('flags no person when a core landmark is untracked', () {
+      final r = checkTurnPose(frontPose(ankleLikelihood: 0.3), imgW, imgH);
+      expect(r.issues, contains(PoseIssue.noPerson));
+    });
+
+    test('flags framing problems', () {
+      expect(
+        checkTurnPose(frontPose(headY: 800, hipY: 1100, ankleY: 1700), imgW,
+                imgH)
+            .issues,
+        contains(PoseIssue.tooFar),
+      );
+      expect(
+        checkTurnPose(frontPose(dx: 200), imgW, imgH).issues,
+        contains(PoseIssue.notCentered),
+      );
+    });
+
+    test('does not impose the front/side arm rules', () {
+      // Arms down (would be armsNotRaised for the front gate) is fine here.
+      final r = checkTurnPose(
+          frontPose(elbowDx: 10, elbowDy: 150), imgW, imgH);
+      expect(r.issues, isNot(contains(PoseIssue.armsNotRaised)));
+      expect(r.okNow, isTrue);
+    });
+  });
 }

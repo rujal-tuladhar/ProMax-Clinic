@@ -37,6 +37,7 @@ void main() {
 
     expect(find.byType(HomeScreen), findsOneWidget);
     expect(find.byType(OnboardingScreen), findsNothing);
-    expect(find.text('Measure me'), findsOneWidget);
+    expect(find.text('Quick measure · 2 photos'), findsOneWidget);
+    expect(find.text('Precision measure · full turn'), findsOneWidget);
   });
 }

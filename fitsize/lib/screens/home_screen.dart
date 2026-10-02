@@ -44,6 +44,11 @@ class _HomeScreenState extends State<HomeScreen> {
     await _load();
   }
 
+  Future<void> _startPrecisionMeasurement() async {
+    await Navigator.of(context).pushNamed('/capture-turn');
+    await _load();
+  }
+
   Future<void> _editProfile() async {
     await Navigator.of(context).pushNamed('/onboarding');
     await _load();
@@ -64,7 +69,10 @@ class _HomeScreenState extends State<HomeScreen> {
             : ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  _HeroCard(onMeasure: _startMeasurement),
+                  _HeroCard(
+                    onMeasure: _startMeasurement,
+                    onPrecisionMeasure: _startPrecisionMeasurement,
+                  ),
                   const SizedBox(height: 20),
                   if (latest != null) ...[
                     _SectionHeader(
@@ -163,8 +171,12 @@ String _formatDate(DateTime t) {
 
 class _HeroCard extends StatelessWidget {
   final VoidCallback onMeasure;
+  final VoidCallback onPrecisionMeasure;
 
-  const _HeroCard({required this.onMeasure});
+  const _HeroCard({
+    required this.onMeasure,
+    required this.onPrecisionMeasure,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -196,8 +208,7 @@ class _HeroCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Chest, waist and hip from two guided photos — processed '
-              'entirely on your phone.',
+              'Chest, waist and hip, processed entirely on your phone.',
               style: theme.textTheme.bodyMedium
                   ?.copyWith(color: scheme.onPrimaryContainer),
             ),
@@ -207,10 +218,34 @@ class _HeroCard extends StatelessWidget {
               child: FilledButton.icon(
                 onPressed: onMeasure,
                 icon: const Icon(Icons.camera_alt_outlined),
-                label: const Text('Measure me'),
+                label: const Text('Quick measure · 2 photos'),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: onPrecisionMeasure,
+                icon: const Icon(Icons.threesixty),
+                label: const Text('Precision measure · full turn'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: scheme.onPrimaryContainer,
+                  side: BorderSide(
+                    color: scheme.onPrimaryContainer.withValues(alpha: 0.5),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Precision takes a slow turn with more angles — more accurate, '
+              'about a minute longer.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: scheme.onPrimaryContainer.withValues(alpha: 0.8),
               ),
             ),
           ],

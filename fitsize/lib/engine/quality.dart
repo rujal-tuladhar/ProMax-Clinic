@@ -223,6 +223,23 @@ PoseCheckResult checkSidePose(
   return PoseCheckResult(_sorted(issues));
 }
 
+/// Checks a mid-TURN pose (guided 360° rotation mode).
+///
+/// At oblique yaws neither the front nor the side stance rules apply, so
+/// this gate keeps only the core-landmark and framing checks: the person
+/// must be tracked, fill 65–90% of the frame height and stay centered.
+PoseCheckResult checkTurnPose(
+    BodyPose pose, int imageWidth, int imageHeight) {
+  for (final l in _coreLandmarks) {
+    if (_trusted(pose, l) == null) {
+      return const PoseCheckResult([PoseIssue.noPerson]);
+    }
+  }
+  final issues = <PoseIssue>[];
+  _checkFraming(_framingOf(pose), imageWidth, imageHeight, issues);
+  return PoseCheckResult(_sorted(issues));
+}
+
 /// Human-readable coaching instruction for [issue] in the context of
 /// [view]; spoken via TTS and shown in the issue banner.
 String instructionFor(PoseIssue issue, CaptureView view) {
