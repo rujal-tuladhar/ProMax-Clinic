@@ -1,30 +1,42 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'dart:convert';
 
 import 'package:fitsize/main.dart';
+import 'package:fitsize/models/models.dart';
+import 'package:fitsize/screens/home_screen.dart';
+import 'package:fitsize/screens/onboarding_screen.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('first run (no saved profile) shows onboarding',
+      (WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues({});
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pumpWidget(const FitSizeApp());
+    await tester.pumpAndSettle();
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    expect(find.byType(OnboardingScreen), findsOneWidget);
+    expect(find.byType(HomeScreen), findsNothing);
+    // The privacy promise is part of the onboarding contract.
+    expect(find.textContaining('never uploaded'), findsOneWidget);
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('saved profile goes straight to home',
+      (WidgetTester tester) async {
+    const profile = UserProfile(
+      heightCm: 172,
+      sex: Sex.female,
+      units: UnitSystem.metric,
+    );
+    SharedPreferences.setMockInitialValues({
+      'fitsize.profile': jsonEncode(profile.toJson()),
+    });
+
+    await tester.pumpWidget(const FitSizeApp());
+    await tester.pumpAndSettle();
+
+    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(find.byType(OnboardingScreen), findsNothing);
+    expect(find.text('Measure me'), findsOneWidget);
   });
 }
