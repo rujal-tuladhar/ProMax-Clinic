@@ -5,13 +5,33 @@ clothes online that actually fit. One Flutter codebase, Android + iOS,
 everything processed **on-device** (photos are never uploaded and are
 deleted right after measuring).
 
+## Two capture modes
+
+FitSize offers two guided capture modes from the home screen:
+
+- **Quick measure (2 photos)** — a front + side photo. Fast (~30 s), works
+  on any phone. Expected error ~2–4 cm.
+- **Precision measure (full turn)** — a guided slow 360° turn with a photo
+  at each of 12 stops. The torso's projected width at every angle
+  overdetermines an elliptical cross-section per body part, which is fitted
+  with a phase offset and outlier trimming (the `RotationMeasurementEngine`).
+  This is the capture style used by the most independently validated systems
+  in the segment (Prism Labs, ZOZOFIT), whose published circumference
+  repeatability is 0.27–0.81 cm — roughly double the accuracy of two-photo
+  capture for about a minute more of the user's time.
+
+Both modes share the same on-device pipeline (pose, segmentation, scale from
+height, calibration, size recommendation) and produce the same result
+screen.
+
 ## How it works
 
 1. **Onboarding** — enter your height (the metric scale reference), sex and
    units.
 2. **Guided capture** — prop the phone upright at hip height (or have a
    friend hold it), step 2–3 m back, and follow the voice coaching. The app
-   *refuses to capture* until on-device pose detection confirms the stance:
+   *refuses to capture* until on-device pose detection confirms the stance.
+   In **quick mode**:
    - **Front view**: facing the camera, standing tall, arms raised ~45°
      from the body (A-pose).
    - **Side view**: turned 90°, arms raised straight forward ("sleepwalker"
@@ -72,6 +92,27 @@ flutter run                       # or open ios/Runner.xcworkspace in Xcode
 Camera permission is declared for both platforms (`AndroidManifest.xml`,
 `Info.plist`). Min Android SDK 24, iOS 15.5+ per ML Kit requirements.
 
+## The segment & where FitSize sits
+
+Body-measurement-for-sizing is a crowded, mostly B2B segment. The players:
+
+| Product | Capture | Licensable |
+| --- | --- | --- |
+| 3DLOOK (Mobile Tailor) | 2 photos | ✅ market leader for retail sizing |
+| Bodygram | 2 photos | ✅ documented API/SDK |
+| MeThreeSixty (Size Stream) | 2 photos | B2B white-label; most peer-reviewed |
+| **Prism Labs** | **360° turn** | ✅ **best published repeatability (0.27–0.81 cm)** |
+| ZOZOFIT | 360° turn | consumer only |
+| Presize | turn video | ❌ acquired by Meta (2022) |
+| Amazon Halo | 3–4 photos + CNN | ❌ discontinued (2023) |
+
+The top performer by independent evidence is the **360° self-rotation
+class** (Prism Labs / ZOZOFIT): peer-reviewed work (EJCN 2024) shows
+rotation capture matches in-booth scanners while two-photo apps trail.
+FitSize's **Precision mode is built on that approach** — the differentiator
+being that it runs **fully on-device** (no upload of body photos), which the
+cloud-based incumbents do not. See the research brief for the full survey.
+
 ## Accuracy — honest expectations
 
 This v1 implements the best *geometric* 2-photo pipeline the evidence
@@ -94,10 +135,15 @@ lighting, repeat scans.
 
 ## Roadmap
 
-- **v2 — rotation capture**: replace 2 stills with a guided slow 360°
-  self-turn (~150 frames, clock-position voice prompts). The proven class
-  (Prism Labs, ZOZOFIT, Presize): precision reaches ~1–2 cm. Biggest
-  accuracy upgrade, no new hardware.
+- **✅ Done — rotation (precision) capture**: a guided 360° turn with a
+  cross-section ellipse fit per body part. The proven class (Prism Labs,
+  ZOZOFIT, Presize): precision reaches ~1–2 cm, no new hardware. Shipped as
+  the "Precision measure" mode (`lib/engine/rotation_engine.dart`,
+  `lib/capture/turn_capture_controller.dart`,
+  `lib/screens/turn_capture_screen.dart`).
+- **Next — more turn stops / continuous frames**: capture ~150 frames
+  through a continuous turn rather than 12 discrete stops, with a motion
+  watchdog, for further noise averaging.
 - **v2+ — learned body model**: fit a parametric 3D body model to the
   silhouettes instead of per-row geometry (note: SMPL/SMPL-X need a
   commercial licence via Meshcapade).
