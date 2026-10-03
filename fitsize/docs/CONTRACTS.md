@@ -258,9 +258,27 @@ class SizeRecommender {
   /// Embedded unisex-ish charts per sex (XS..XXL cm ranges for chest,
   /// waist, hip; sensible values — document them in code comments).
   /// Missing parts fall back to "–".
-  static SizeRecommendation recommend(MeasurementResult result, Sex sex);
+  /// [fit] biases the lookup for between-sizes cases: slim shifts each
+  /// measurement -3 cm before lookup, relaxed +3 cm, regular unchanged.
+  static SizeRecommendation recommend(MeasurementResult result, Sex sex,
+      {FitPreference fit = FitPreference.regular});
 }
 ```
+
+Additive model changes since v1 (models.dart): `enum FitPreference { slim,
+regular, relaxed }`; `UserProfile.fit` (default `FitPreference.regular`,
+serialised, with `copyWith`). Every existing call site keeps working.
+
+## lib/engine/rotation_engine.dart  (pure Dart — precision turn mode)
+
+`RotationFrame {SilhouetteFrame frame; double angleDegrees}` (instructed
+yaw, 0 = facing camera). `fitEllipseWidths(List<(angleDeg, widthCm)>) ->
+EllipseFit?` fits a² / b² by closed-form least squares per candidate phase
+(±25° grid), trims the worst 20% residuals and refits. `RotationMeasurementEngine
+.compute({frames, profile}) -> MeasurementResult` (same output model as the
+two-view engine). Companion gate `checkTurnPose` (quality.dart) applies the
+framing rules only. Capture: `lib/capture/turn_capture_controller.dart`,
+`lib/screens/turn_capture_screen.dart`, route `/capture-turn`.
 
 ## lib/services/pose_service.dart
 
