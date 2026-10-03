@@ -56,12 +56,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
+  /// Fit preference carried over from the saved profile (editing the profile
+  /// must not reset a choice made on the results screen).
+  FitPreference _fit = FitPreference.regular;
+
   Future<void> _prefillFromSavedProfile() async {
     final profile = await _store.loadProfile();
     if (!mounted || profile == null) return;
     setState(() {
       _units = profile.units;
       _sex = profile.sex;
+      _fit = profile.fit;
       _fillHeightFields(profile.heightCm);
     });
   }
@@ -125,7 +130,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     });
     final roundedCm = (cm * 10).roundToDouble() / 10;
     await _store.saveProfile(
-      UserProfile(heightCm: roundedCm, sex: _sex, units: _units),
+      UserProfile(heightCm: roundedCm, sex: _sex, units: _units, fit: _fit),
     );
     if (!mounted) return;
     setState(() => _saving = false);
