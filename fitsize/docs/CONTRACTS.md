@@ -469,3 +469,171 @@ left and raise your arms forward"), and counts down aloud.
   of an "elliptic cylinder person" with known height -> circumference within
   1.5% of analytic truth; scale-outlier frame dropped; exception on empty.
 - `test/engine/size_recommender_test.dart` — chart boundaries.
+
+---
+
+# v2 contracts — differentiator build (October 2026)
+
+Research-driven additions. All changes to existing types are ADDITIVE unless
+stated. Pure-Dart rule for `lib/engine/` still applies.
+
+## models.dart (additive)
+
+```dart
+enum BodyPart { chest, waist, hip, neck, shoulder, sleeve, shirtSleeve, inseam, thigh }
+enum MeasurementKind { circumference, length }
+
+extension BodyPartLabel on BodyPart {           // existing extension, extended
+  String get label;      // Chest, Waist, Hip, Neck, Shoulder width,
+                         // Sleeve (shoulder to wrist), Shirt sleeve (centre back to wrist),
+                         // Inseam, Thigh
+  MeasurementKind get kind;   // chest/waist/hip/neck/thigh = circumference; rest = length
+  bool get isCircumference;
+}
+/// Parts measured directly from silhouette widths (front + side / turn).
+const List<BodyPart> kTorsoParts = [BodyPart.chest, BodyPart.waist, BodyPart.hip];
+
+class PartMeasurement {   // + one optional field, default false, in JSON
+  final bool derived;     // true when estimated from other measurements (neck, thigh, shirtSleeve)
+}
+
+class UserProfile {       // + one optional field, default const {}, in JSON + copyWith
+  /// Tap-to-correct calibration: tape value minus app value, per part (cm).
+  /// Added to every future measurement of that part.
+  final Map<BodyPart, double> offsetsCm;
+}
+```
+
+## engine/circumference.dart (behaviour change, same entry point)
+
+`circumferenceFromWidths({frontWidthCm, sideDepthCm, part, Sex sex = Sex.other,
+Calibration calibration = Calibration.standard})` now uses the ANSUR II
+breadth/depth → tape linear model instead of a Ramanujan ellipse (the
+ellipse under-reads waist ≈5 cm and hip ≈8 cm vs tape). Coefficients in cm
+(circ = a + b·breadth + c·depth):
+
+| part  | male                       | female                    |
+|-------|----------------------------|---------------------------|
+| chest | −1.38 + 1.548·b + 2.460·d  | 5.04 + 1.198·b + 2.320·d  |
+| waist | 0.94 + 1.663·b + 1.633·d   | 2.96 + 1.776·b + 1.402·d  |
+| hip   | 5.90 + 1.841·b + 1.318·d   | 7.43 + 1.861·b + 1.238·d  |
+
+`Sex.other` = mean of the two predictions. `Calibration.standard` factors are
+now all 1.0 (multiplicative tape-equivalence placeholders for the validation
+study). `ellipsePerimeter(a, b)` stays exported. Document the chest caveat:
+ANSUR chest breadth is caliper-compressed, so silhouette-based chest may read
+high until calibrated. Only `kTorsoParts` are valid `part` values here.
+
+## engine/extra_measurements.dart (new, pure Dart)
+
+```dart
+/// Inseam (crotch → floor), cm. Preferred: silhouette crotch — scan mask rows
+/// upward from the ankle rows within the column band between the two ankle
+/// landmarks (mask coords); the crotch row is the first row (from below) where
+/// the two leg runs merge into one run. Floor row = Silhouette.bottomY.
+/// Fallback (legs not separable): hipJointY + k·H below the hip-landmark row,
+/// k = 0.0313 (male) / 0.0388 (female) / mean (other), H = profile.heightCm.
+/// Returns null unless 0.42·H ≤ inseam ≤ 0.54·H.
+double? estimateInseamCm(SilhouetteFrame frame, Silhouette sil, double scaleCmPerImagePx, UserProfile profile);
+
+/// Sleeve from the landmark chain shoulder→elbow→wrist of each arm (image px → cm):
+/// outseam = 0.983·(upper + fore) − 1.5 (joint-centre → acromion/stylion correction).
+/// Use an arm only when shoulder/elbow/wrist likelihood ≥ 0.5 and the elbow angle ≥ 150°;
+/// average the usable arms; null when none. shirtSleeve (centre back → wrist) =
+/// 5.6 + 0.795·biacromial + 0.858·outseam (male) / 6.2 + 0.662·biacromial + 0.925·outseam (female) / mean,
+/// with biacromial from estimateShoulderWidthCm (fallback 0.23·H).
+({double outseamCm, double shirtSleeveCm})? estimateSleeveCm(BodyPose pose, double scaleCmPerImagePx, UserProfile profile);
+
+/// Biacromial shoulder width = 1.15 × landmark shoulder distance (cm); null unless 0.19·H..0.28·H.
+double? estimateShoulderWidthCm(BodyPose pose, double scaleCmPerImagePx, UserProfile profile);
+
+/// Regression estimates (derived parts): neck = 15.0 + 0.234·chest (male) / 16.9 + 0.169·chest (female);
+/// thigh = −10.8 + 0.719·hip (male) / −8.9 + 0.691·hip (female); Sex.other = mean.
+double estimateNeckCm(double chestCm, Sex sex);
+double estimateThighCm(double hipCm, Sex sex);
+```
+
+Both engines (`MeasurementEngine`, `RotationMeasurementEngine`) add, after the
+torso parts: inseam, sleeve, shirtSleeve, shoulder from the FRONT(-ish) frames
+(median across frames, stdDev from spread, confidence as for torso parts),
+then neck (from chest) and thigh (from hip) with `derived: true` and
+confidence = 0.6 × source confidence. Finally apply `profile.offsetsCm` to
+every part's valueCm. Parts that cannot be estimated are simply omitted.
+
+## engine/quality.dart (additive)
+
+```dart
+enum PoseIssue { noPerson, tooFar, tooClose, notCentered, lowLight, notFacingCamera, notSideways,
+                 armsNotRaised, armsTooHigh, notUpright, feetTogether }
+// checkFrontPose: + feetTogether when ankle x-separation < 0.08 × body height
+//   (legs must be separable for the inseam crotch search).
+// instructionFor: lowLight → 'Find a brighter spot or turn on a light';
+//                 feetTogether → 'Stand with your feet a little apart'.
+/// Mean luma 0..255 of a camera Y plane, sampling every [stride]-th byte.
+double meanLuma(Uint8List yPlane, {int stride = 97});
+bool isTooDark(double meanLuma); // < 60
+```
+
+## engine/brand_sizes.dart (new, pure Dart) + assets/data/brand_charts.json
+
+JSON shape (versioned, source-dated, confidence per brand):
+```json
+{"version":"2026.10","brands":[{"brand":"Nike","source":"https://…","retrieved":"2026-10-03",
+  "confidence":"high|medium|low","notes":"…",
+  "charts":[{"gender":"men|women","category":"tops|bottoms","measure":"chest|waist|hip|inseam",
+             "unit":"cm","sizes":[{"label":"M","min":96,"max":104}]}]}]}
+```
+Point-value charts are stored with min == max.
+
+```dart
+class BrandCatalog { static BrandCatalog fromJson(String json); String get version; List<Brand> get brands; }
+class Brand { String brand, source, retrieved, confidence, notes; List<BrandChart> charts; }
+class BrandChart { String gender, category, measure, unit; List<SizeBand> sizes; bool get isPointChart; }
+class SizeBand { String label; double min, max; }
+
+class SizeLookup {
+  final String label;                 // best size
+  final bool between;                 // within 1.5 cm of a boundary, or in a chart gap
+  final String? alternative;          // the neighbouring size when between
+  final Map<String, double> probabilities; // normal CDF mass per label, sd = max(sdCm, 1.0)
+}
+class BrandSizeMatch {
+  final Brand brand; final String gender;
+  final SizeLookup? top;     // from chest (tops chart)
+  final SizeLookup? bottom;  // bottoms: waist and hip looked up separately, the LARGER size wins
+  final String? note;        // e.g. 'Hip chart not published — waist only'
+}
+class BrandSizeResolver {
+  BrandSizeResolver(BrandCatalog catalog);
+  /// Range charts with gaps → nearest band by distance; point charts → nearest point
+  /// (boundaries at midpoints). Fit bias as SizeRecommender: slim −3 cm, relaxed +3 cm.
+  SizeLookup lookup(BrandChart chart, double valueCm, {double sdCm = 1.5, FitPreference fit = FitPreference.regular});
+  /// Sex.male → men charts, female → women, other → women then men.
+  List<BrandSizeMatch> matchAll(MeasurementResult result, Sex sex, {FitPreference fit = FitPreference.regular});
+}
+```
+
+## UI additions
+
+- `lib/screens/my_sizes_screen.dart`, route `/my-sizes` (argument:
+  MeasurementResult; when absent, use the newest ProfileStore history entry).
+  Loads the JSON with `rootBundle.loadString('assets/data/brand_charts.json')`.
+  Per brand: top / bottom size, 'between X and Y' chip with the fit-preference
+  hint, probability text ('M 78% · L 22%'), chart confidence tag, source +
+  retrieved date, note. Search box filters brands. Disclaimer: 'From published
+  size charts (Oct 2026). Verify on the brand site before ordering.'
+- Home: card 'Your size at 12 brands' (when a result exists) → `/my-sizes`.
+- Results: button 'Your size at 12 brands →'; generic sizes shown with
+  probabilities ('M (78%) · L (22%)'); garment-aware line: jeans W×L (waist
+  inches nearest 1, inseam inches nearest 1), dress shirt neck (nearest ½ in,
+  from BodyPart.neck) × sleeve (shirtSleeve inches nearest 1); tap any
+  measurement card → 'Correct with a tape' dialog → saves
+  `offsetsCm[part] = tape − measured` on the profile and shows the corrected
+  value with a '✎ corrected' marker; 'Privacy receipt' card: photos processed
+  N (frontFrameCount + sideFrameCount), uploaded 0, stored 0.
+- SizeRecommender: `recommendWithProbabilities(result, sex, {fit}) ->
+  SizeRecommendation` where `SizeRecommendation` gains
+  `Map<String,double> topProbabilities, bottomProbabilities`; and
+  `GarmentSizes garmentSizes(result, {fit})` → `{String? jeans, String? shirt}`.
+- Capture screens: low-light gate (meanLuma of CameraImage planes[0].bytes →
+  `PoseIssue.lowLight` instruction); intro copy adds 'feet a little apart'.
