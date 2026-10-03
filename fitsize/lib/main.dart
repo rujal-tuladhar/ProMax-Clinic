@@ -8,6 +8,7 @@ import 'screens/onboarding_screen.dart';
 import 'screens/results_screen.dart';
 import 'screens/turn_capture_screen.dart';
 import 'services/profile_store.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,8 +17,8 @@ void main() {
   runApp(const FitSizeApp());
 }
 
-/// Root widget of FitSize: Material 3, seeded teal colour scheme with light
-/// and dark themes, and the app's named routes.
+/// Root widget of FitSize: the [AppTheme] (Material 3, teal on sand / teal
+/// on near-black) in light and dark, and the app's named routes.
 ///
 /// The `/` route is a gate that loads the saved [UserProfile] and shows
 /// [OnboardingScreen] on first run (no profile yet) or [HomeScreen]
@@ -31,17 +32,8 @@ class FitSizeApp extends StatelessWidget {
     return MaterialApp(
       title: 'FitSize',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.teal,
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
       themeMode: ThemeMode.system,
       routes: {
         '/': (_) => const _StartupGate(),
@@ -101,26 +93,45 @@ class _SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     return Scaffold(
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.straighten, size: 56, color: scheme.primary),
-            const SizedBox(height: 12),
+            // Brand mark: teal rounded square with the tape icon, matching
+            // the launcher icon.
+            Container(
+              width: 76,
+              height: 76,
+              decoration: BoxDecoration(
+                color: scheme.primary,
+                borderRadius: BorderRadius.circular(AppRadii.card),
+              ),
+              child: Icon(Icons.straighten, size: 40, color: scheme.onPrimary),
+            ),
+            const SizedBox(height: AppSpacing.lg),
             Text(
               'FitSize',
-              style: Theme.of(context)
-                  .textTheme
-                  .headlineMedium
-                  ?.copyWith(fontWeight: FontWeight.w600),
+              style: theme.textTheme.headlineMedium?.copyWith(
+                color: scheme.onSurface,
+              ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              'Your size, measured.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            const SizedBox(width: 120, child: TapeDivider()),
+            const SizedBox(height: AppSpacing.xl),
             const SizedBox(
-              width: 28,
-              height: 28,
-              child: CircularProgressIndicator(strokeWidth: 3),
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(strokeWidth: 2.5),
             ),
           ],
         ),

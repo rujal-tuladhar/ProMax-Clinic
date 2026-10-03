@@ -23,6 +23,19 @@ extension BodyPartLabel on BodyPart {
 /// Which capture view a frame belongs to.
 enum CaptureView { front, side }
 
+/// How the shopper likes clothes to sit. Only biases the size lookup when a
+/// measurement is close to a chart boundary (see `SizeRecommender`); it never
+/// changes the measurements themselves.
+enum FitPreference { slim, regular, relaxed }
+
+extension FitPreferenceLabel on FitPreference {
+  String get label => switch (this) {
+        FitPreference.slim => 'Slim',
+        FitPreference.regular => 'Regular',
+        FitPreference.relaxed => 'Relaxed',
+      };
+}
+
 class UserProfile {
   /// Standing height without shoes, in centimetres. The single scale
   /// reference for every measurement, so it must be accurate.
@@ -30,16 +43,36 @@ class UserProfile {
   final Sex sex;
   final UnitSystem units;
 
+  /// Preferred fit, used to bias size suggestions near chart boundaries.
+  /// Optional; profiles saved before this field existed read as regular.
+  final FitPreference fit;
+
   const UserProfile({
     required this.heightCm,
     required this.sex,
     this.units = UnitSystem.metric,
+    this.fit = FitPreference.regular,
   });
+
+  /// Copy with the given fields replaced.
+  UserProfile copyWith({
+    double? heightCm,
+    Sex? sex,
+    UnitSystem? units,
+    FitPreference? fit,
+  }) =>
+      UserProfile(
+        heightCm: heightCm ?? this.heightCm,
+        sex: sex ?? this.sex,
+        units: units ?? this.units,
+        fit: fit ?? this.fit,
+      );
 
   Map<String, dynamic> toJson() => {
         'heightCm': heightCm,
         'sex': sex.name,
         'units': units.name,
+        'fit': fit.name,
       };
 
   static UserProfile? fromJson(Map<String, dynamic>? json) {
@@ -50,6 +83,8 @@ class UserProfile {
       heightCm: height,
       sex: Sex.values.asNameMap()[json['sex']] ?? Sex.other,
       units: UnitSystem.values.asNameMap()[json['units']] ?? UnitSystem.metric,
+      fit: FitPreference.values.asNameMap()[json['fit']] ??
+          FitPreference.regular,
     );
   }
 }

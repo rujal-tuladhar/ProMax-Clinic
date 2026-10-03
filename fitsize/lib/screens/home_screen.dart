@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../models/models.dart';
 import '../services/profile_store.dart';
+import '../theme/app_theme.dart';
 
-/// Landing screen: the "Measure me" call to action, setup tips that make the
-/// photos accurate, the latest measurement at a glance, past measurements,
-/// and a row to edit the profile.
+/// Landing screen: a hero with the two measure CTAs, the privacy badge, the
+/// latest measurement as big-number tiles, a three-step "how it works"
+/// strip, compact setup tips, past measurements, and the profile row.
 class HomeScreen extends StatefulWidget {
   /// Creates the home screen.
   const HomeScreen({super.key});
@@ -56,88 +57,77 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
     final units = _profile?.units ?? UnitSystem.metric;
     final latest = _history.isEmpty ? null : _history.first;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('FitSize')),
       body: SafeArea(
         child: _loading
             ? const Center(child: CircularProgressIndicator())
             : ListView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.gutter,
+                  AppSpacing.sm,
+                  AppSpacing.gutter,
+                  AppSpacing.xxl,
+                ),
                 children: [
-                  _HeroCard(
+                  _TopBar(onProfile: _editProfile),
+                  const SizedBox(height: AppSpacing.lg),
+                  _Hero(
                     onMeasure: _startMeasurement,
                     onPrecisionMeasure: _startPrecisionMeasurement,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.md),
+                  const _PrivacyBadge(),
+                  const SizedBox(height: AppSpacing.xl),
                   if (latest != null) ...[
                     _SectionHeader(
                       title: 'Latest measurements',
-                      subtitle: _formatDate(latest.timestamp),
+                      trailing: _formatDate(latest.timestamp),
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        for (final part in BodyPart.values)
-                          if (latest.partFor(part) case final m?)
-                            Expanded(
-                              child: _SummaryTile(
-                                measurement: m,
-                                units: units,
-                              ),
-                            ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                  ] else ...[
+                    const SizedBox(height: AppSpacing.md),
+                    _LatestTiles(result: latest, units: units),
+                  ] else
+                    const _EmptyState(),
+                  const SizedBox(height: AppSpacing.xl),
+                  const _SectionHeader(title: 'How it works'),
+                  const SizedBox(height: AppSpacing.md),
+                  const _HowItWorks(),
+                  const SizedBox(height: AppSpacing.xl),
+                  const _SectionHeader(title: 'Before you measure'),
+                  const SizedBox(height: AppSpacing.md),
+                  const _TipChips(),
+                  if (_history.length > 1) ...[
+                    const SizedBox(height: AppSpacing.xl),
+                    const TapeDivider(),
+                    const SizedBox(height: AppSpacing.lg),
+                    const _SectionHeader(title: 'History'),
+                    const SizedBox(height: AppSpacing.md),
                     Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: [
-                            Icon(Icons.auto_awesome, color: scheme.primary),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'No measurements yet — your first one takes '
-                                'about a minute.',
-                                style: theme.textTheme.bodyMedium,
-                              ),
-                            ),
+                      child: Column(
+                        children: [
+                          for (final (i, result)
+                              in _history.skip(1).indexed) ...[
+                            if (i > 0) const Divider(indent: 18, endIndent: 18),
+                            _HistoryTile(result: result, units: units),
                           ],
-                        ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 20),
                   ],
-                  const _SectionHeader(title: 'Before you measure'),
-                  const SizedBox(height: 8),
-                  const _TipsCard(),
-                  if (_history.length > 1) ...[
-                    const SizedBox(height: 20),
-                    const _SectionHeader(title: 'History'),
-                    const SizedBox(height: 4),
-                    for (final result in _history.skip(1))
-                      _HistoryTile(result: result, units: units),
-                  ],
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.xl),
                   const _SectionHeader(title: 'Settings'),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AppSpacing.md),
                   Card(
-                    margin: EdgeInsets.zero,
                     child: ListTile(
-                      leading: const Icon(Icons.person_outline),
+                      leading: const Icon(Icons.person_outline_rounded),
                       title: const Text('Your profile'),
                       subtitle: Text(_profileSummary()),
-                      trailing: const Icon(Icons.chevron_right),
+                      trailing: const Icon(Icons.chevron_right_rounded),
                       onTap: _editProfile,
                     ),
                   ),
-                  const SizedBox(height: 24),
                 ],
               ),
       ),
@@ -158,8 +148,18 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 const List<String> _monthNames = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
 ];
 
 String _formatDate(DateTime t) {
@@ -169,83 +169,175 @@ String _formatDate(DateTime t) {
   return '${local.day} ${_monthNames[local.month - 1]} ${local.year}, $hh:$mm';
 }
 
-class _HeroCard extends StatelessWidget {
-  final VoidCallback onMeasure;
-  final VoidCallback onPrecisionMeasure;
+/// Brand row: mark + wordmark on the left, profile button on the right.
+class _TopBar extends StatelessWidget {
+  final VoidCallback onProfile;
 
-  const _HeroCard({
-    required this.onMeasure,
-    required this.onPrecisionMeasure,
-  });
+  const _TopBar({required this.onProfile});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      color: scheme.primaryContainer,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      children: [
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: scheme.primary,
+            borderRadius: BorderRadius.circular(AppRadii.chip),
+          ),
+          child: Icon(Icons.straighten, size: 20, color: scheme.onPrimary),
+        ),
+        const SizedBox(width: AppSpacing.md),
+        Text(
+          'FitSize',
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.3,
+          ),
+        ),
+        const Spacer(),
+        IconButton(
+          tooltip: 'Your profile',
+          onPressed: onProfile,
+          icon: const Icon(Icons.person_outline_rounded),
+          style: IconButton.styleFrom(
+            backgroundColor: scheme.surfaceContainerHigh,
+            foregroundColor: scheme.onSurface,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Gradient teal hero with the two measure CTAs.
+class _Hero extends StatelessWidget {
+  final VoidCallback onMeasure;
+  final VoidCallback onPrecisionMeasure;
+
+  const _Hero({required this.onMeasure, required this.onPrecisionMeasure});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final top = isDark ? const Color(0xFF13584B) : const Color(0xFF187F6C);
+    final bottom = isDark ? const Color(0xFF0A3A31) : AppColors.tealDeep;
+    const ink = Colors.white;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppRadii.card + 4),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [top, bottom],
+          ),
+        ),
+        child: Stack(
           children: [
-            Row(
-              children: [
-                Icon(Icons.straighten,
-                    size: 36, color: scheme.onPrimaryContainer),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Know your size before you buy',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      color: scheme.onPrimaryContainer,
-                      fontWeight: FontWeight.w600,
+            // Faint tape ticks along the bottom edge — the brand motif.
+            const Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: TapeDivider(
+                height: 18,
+                spacing: 7,
+                color: Color(0x33FFFFFF),
+              ),
+            ),
+            Positioned(
+              right: -28,
+              top: -28,
+              child: Container(
+                width: 150,
+                height: 150,
+                decoration: const BoxDecoration(
+                  color: Color(0x14FFFFFF),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(22, 24, 22, 30),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'CHEST · WAIST · HIP',
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: ink.withValues(alpha: 0.78),
+                      letterSpacing: 1.6,
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Chest, waist and hip, processed entirely on your phone.',
-              style: theme.textTheme.bodyMedium
-                  ?.copyWith(color: scheme.onPrimaryContainer),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: onMeasure,
-                icon: const Icon(Icons.camera_alt_outlined),
-                label: const Text('Quick measure · 2 photos'),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: onPrecisionMeasure,
-                icon: const Icon(Icons.threesixty),
-                label: const Text('Precision measure · full turn'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: scheme.onPrimaryContainer,
-                  side: BorderSide(
-                    color: scheme.onPrimaryContainer.withValues(alpha: 0.5),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    'Know your size\nbefore you buy',
+                    style: theme.textTheme.headlineLarge?.copyWith(color: ink),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Precision takes a slow turn with more angles — more accurate, '
-              'about a minute longer.',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: scheme.onPrimaryContainer.withValues(alpha: 0.8),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    'Three measurements from guided photos, computed '
+                    'entirely on your phone.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: ink.withValues(alpha: 0.85),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: onMeasure,
+                      icon: const Icon(Icons.camera_alt_outlined),
+                      label: const Text('Quick measure · 2 photos'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: ink,
+                        foregroundColor: AppColors.tealDeep,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: onPrecisionMeasure,
+                      icon: const Icon(Icons.threesixty_rounded),
+                      label: const Text('Precision measure · full turn'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: ink,
+                        side: BorderSide(
+                          color: ink.withValues(alpha: 0.55),
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.timer_outlined,
+                        size: 15,
+                        color: ink.withValues(alpha: 0.75),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'Quick takes about a minute. Precision adds a slow '
+                          'turn for more angles and tighter numbers.',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: ink.withValues(alpha: 0.75),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
@@ -255,11 +347,47 @@ class _HeroCard extends StatelessWidget {
   }
 }
 
+/// "On-device only" promise, shown right under the hero.
+class _PrivacyBadge extends StatelessWidget {
+  const _PrivacyBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: scheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(AppRadii.field),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.lock_outline_rounded,
+            size: 18,
+            color: scheme.onSecondaryContainer,
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              'On-device only · photos never leave your phone',
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: scheme.onSecondaryContainer,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _SectionHeader extends StatelessWidget {
   final String title;
-  final String? subtitle;
+  final String? trailing;
 
-  const _SectionHeader({required this.title, this.subtitle});
+  const _SectionHeader({required this.title, this.trailing});
 
   @override
   Widget build(BuildContext context) {
@@ -268,19 +396,206 @@ class _SectionHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
-        Text(
-          title,
-          style: theme.textTheme.titleMedium
-              ?.copyWith(fontWeight: FontWeight.w600),
+        Expanded(
+          child: Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
         ),
-        if (subtitle != null) ...[
-          const SizedBox(width: 8),
+        if (trailing != null)
+          Text(
+            trailing!,
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+      ],
+    );
+  }
+}
+
+/// Three big-number tiles for the latest result.
+class _LatestTiles extends StatelessWidget {
+  final MeasurementResult result;
+  final UnitSystem units;
+
+  const _LatestTiles({required this.result, required this.units});
+
+  @override
+  Widget build(BuildContext context) {
+    final tiles = <PartMeasurement>[
+      for (final part in BodyPart.values) ?result.partFor(part),
+    ];
+    if (tiles.isEmpty) return const _EmptyState();
+    return Row(
+      children: [
+        for (final (i, m) in tiles.indexed) ...[
+          if (i > 0) const SizedBox(width: AppSpacing.sm),
           Expanded(
-            child: Text(
-              subtitle!,
-              style: theme.textTheme.bodySmall
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-              overflow: TextOverflow.ellipsis,
+            child: _BigNumberTile(measurement: m, units: units),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _BigNumberTile extends StatelessWidget {
+  final PartMeasurement measurement;
+  final UnitSystem units;
+
+  const _BigNumberTile({required this.measurement, required this.units});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final extras = FitSizeColors.of(context);
+    final c = measurement.confidence;
+    final dot = c >= 0.7
+        ? extras.good
+        : c >= 0.4
+        ? extras.caution
+        : scheme.error;
+    final value = units == UnitSystem.metric
+        ? measurement.valueCm
+        : cmToInches(measurement.valueCm);
+    final unit = units == UnitSystem.metric ? 'cm' : 'in';
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    measurement.part.label.toUpperCase(),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                      letterSpacing: 1.1,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                value.toStringAsFixed(1),
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  color: scheme.onSurface,
+                ),
+              ),
+            ),
+            Text(
+              unit,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: scheme.primaryContainer,
+                borderRadius: BorderRadius.circular(AppRadii.chip),
+              ),
+              child: Icon(
+                Icons.auto_awesome_rounded,
+                color: scheme.onPrimaryContainer,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'No measurements yet',
+                    style: theme.textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Your first one takes about a minute.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Three numbered steps in a row.
+class _HowItWorks extends StatelessWidget {
+  const _HowItWorks();
+
+  static const List<(IconData, String, String)> _steps = [
+    (
+      Icons.phone_iphone_rounded,
+      'Prop the phone',
+      'Upright, hip height, 2–3 m away.',
+    ),
+    (
+      Icons.accessibility_new_rounded,
+      'Strike the pose',
+      'Follow the voice and outline guide.',
+    ),
+    (Icons.checkroom_rounded, 'Get your size', 'Chest, waist, hip and a size.'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final (i, step) in _steps.indexed) ...[
+          if (i > 0) const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: _StepCard(
+              index: i + 1,
+              icon: step.$1,
+              title: step.$2,
+              body: step.$3,
             ),
           ),
         ],
@@ -289,33 +604,58 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-class _SummaryTile extends StatelessWidget {
-  final PartMeasurement measurement;
-  final UnitSystem units;
+class _StepCard extends StatelessWidget {
+  final int index;
+  final IconData icon;
+  final String title;
+  final String body;
 
-  const _SummaryTile({required this.measurement, required this.units});
+  const _StepCard({
+    required this.index,
+    required this.icon,
+    required this.title,
+    required this.body,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 3),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        padding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              measurement.part.label,
-              style: theme.textTheme.labelMedium
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            Row(
+              children: [
+                Container(
+                  width: 22,
+                  height: 22,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: scheme.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    '$index',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: scheme.onPrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Icon(icon, size: 20, color: scheme.primary),
+              ],
             ),
-            const SizedBox(height: 4),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                formatLength(measurement.valueCm, units),
-                style: theme.textTheme.titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w700),
+            const SizedBox(height: AppSpacing.md),
+            Text(title, style: theme.textTheme.titleSmall, maxLines: 2),
+            const SizedBox(height: 2),
+            Text(
+              body,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: scheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -325,46 +665,28 @@ class _SummaryTile extends StatelessWidget {
   }
 }
 
-class _TipsCard extends StatelessWidget {
-  const _TipsCard();
+/// Setup tips as compact icon chips.
+class _TipChips extends StatelessWidget {
+  const _TipChips();
 
   static const List<(IconData, String)> _tips = [
-    (Icons.checkroom, 'Wear tight-fitting clothing (or underwear).'),
-    (Icons.face_retouching_natural, 'Tie long hair up, off your shoulders.'),
-    (Icons.wallpaper, 'Stand in front of a clear, uncluttered background.'),
-    (
-      Icons.smartphone,
-      'Prop the phone upright at hip height — about 1 m from the ground.'
-    ),
-    (Icons.social_distance, 'Stand 2–3 m away so your whole body is visible.'),
-    (Icons.group_outlined, 'A friend can also hold the phone for you.'),
+    (Icons.checkroom_rounded, 'Tight clothing or underwear'),
+    (Icons.face_retouching_natural_rounded, 'Hair up, off the shoulders'),
+    (Icons.wallpaper_rounded, 'Plain, uncluttered background'),
+    (Icons.smartphone_rounded, 'Phone upright at hip height'),
+    (Icons.social_distance_rounded, 'Stand 2–3 m back, whole body in frame'),
+    (Icons.group_outlined, 'Or let a friend hold the phone'),
   ];
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        child: Column(
-          children: [
-            for (final (icon, text) in _tips)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  children: [
-                    Icon(icon, size: 22, color: theme.colorScheme.primary),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Text(text, style: theme.textTheme.bodyMedium),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ),
-      ),
+    return Wrap(
+      spacing: AppSpacing.sm,
+      runSpacing: AppSpacing.sm,
+      children: [
+        for (final (icon, text) in _tips)
+          Chip(avatar: Icon(icon), label: Text(text)),
+      ],
     );
   }
 }
@@ -377,17 +699,20 @@ class _HistoryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final parts = [
       for (final part in BodyPart.values)
         if (result.partFor(part) case final m?)
           '${m.part.label} ${formatLength(m.valueCm, units)}',
     ];
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      child: ListTile(
-        leading: const Icon(Icons.history),
-        title: Text(_formatDate(result.timestamp)),
-        subtitle: Text(parts.isEmpty ? 'No parts measured' : parts.join(' · ')),
+    return ListTile(
+      leading: const Icon(Icons.history_rounded),
+      title: Text(_formatDate(result.timestamp)),
+      subtitle: Text(
+        parts.isEmpty ? 'No parts measured' : parts.join(' · '),
+        style: theme.textTheme.bodyMedium?.copyWith(
+          fontFeatures: const [FontFeature.tabularFigures()],
+        ),
       ),
     );
   }

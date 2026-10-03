@@ -76,18 +76,48 @@ const Map<Sex, Map<BodyPart, _Chart>> _charts = {
 class SizeRecommender {
   SizeRecommender._();
 
+  /// Magnitude of the chart shift applied for a non-regular [FitPreference],
+  /// in cm. 3 cm is well under half of one 8 cm size step, so it only moves
+  /// measurements that sit near a boundary — a comfortably mid-range value
+  /// reads the same size under every preference.
+  static const double fitBiasCm = 3.0;
+
+  /// Signed offset (cm) added to each measurement BEFORE the chart lookup:
+  /// -3 for slim, 0 for regular, +3 for relaxed.
+  static double biasFor(FitPreference fit) => switch (fit) {
+        FitPreference.slim => -fitBiasCm,
+        FitPreference.regular => 0,
+        FitPreference.relaxed => fitBiasCm,
+      };
+
   /// Recommends sizes for [result] using the chart for [sex].
   ///
   /// [Sex.other] uses the midpoint of the male and female chart bounds
   /// (a unisex compromise). Missing parts fall back to "–"; a missing
   /// chest yields topSize "–", and the bottom size uses whichever of
   /// waist/hip is available (or "–" when neither is).
-  static SizeRecommendation recommend(MeasurementResult result, Sex sex) {
+  ///
+  /// [fit] biases the lookup, not the measurement: with [FitPreference.slim]
+  /// every value is shifted by -[fitBiasCm] before lookup, so a measurement
+  /// less than 3 cm ABOVE a size boundary rounds DOWN to the smaller size;
+  /// with [FitPreference.relaxed] it is shifted by +[fitBiasCm], so a value
+  /// up to 3 cm BELOW a boundary rounds UP to the larger size (the asymmetry
+  /// at exactly 3 cm follows from the lower-inclusive ranges).
+  /// [FitPreference.regular] looks up the raw value. Example (male chest,
+  /// M = 94–102): 95 cm reads M regular, S slim, M relaxed; 100 cm reads M
+  /// regular, M slim, L relaxed; 98 cm reads M under every preference.
+  static SizeRecommendation recommend(
+    MeasurementResult result,
+    Sex sex, {
+    FitPreference fit = FitPreference.regular,
+  }) {
+    final bias = biasFor(fit);
     final perPart = <BodyPart, String>{};
     for (final part in BodyPart.values) {
       final value = result.valueFor(part);
-      perPart[part] =
-          value == null ? _missing : _chartFor(sex, part).sizeFor(value);
+      perPart[part] = value == null
+          ? _missing
+          : _chartFor(sex, part).sizeFor(value + bias);
     }
 
     final waistSize = perPart[BodyPart.waist]!;
