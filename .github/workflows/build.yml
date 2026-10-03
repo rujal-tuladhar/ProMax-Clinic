@@ -1,0 +1,105 @@
+name: FitSize build
+
+# Builds an installable Android APK (debug-signed release build) on every
+# push that touches the app, and uploads it as a workflow artifact so it can
+# be downloaded straight onto a phone for testing. The iOS job compiles the
+# iOS project without code signing to prove it builds; installing on an
+# iPhone still needs Xcode + an Apple ID on a Mac.
+
+on:
+  push:
+    branches: ['**']
+    paths:
+      - '**'
+      - '.github/workflows/build.yml'
+  workflow_dispatch:
+    inputs:
+      build_ios:
+        description: 'Also compile the iOS app (no code signing) on a macOS runner'
+        type: boolean
+        default: false
+
+concurrency:
+  group: fitsize-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    name: Android APK
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to publish the test-build release
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.6
+          cache: true
+
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+      - run: flutter build apk --release
+
+      - name: Rename APK
+        run: |
+          cp build/app/outputs/flutter-apk/app-release.apk "fitsize-${GITHUB_SHA::7}.apk"
+          cp build/app/outputs/flutter-apk/app-release.apk fitsize-latest.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fitsize-android-apk
+          path: fitsize-*.apk
+          retention-days: 30
+
+      # Publish the newest build to a permanent, login-free download link:
+      # https://github.com/<owner>/<repo>/releases/download/fitsize-test/fitsize-latest.apk
+      - name: Publish test build to the "fitsize-test" release
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: fitsize-test
+          name: FitSize test build
+          prerelease: true
+          body: |
+            Latest FitSize Android test build (commit ${{ github.sha }}).
+
+            **Install on Android:** open `fitsize-latest.apk` on your phone, allow
+            installs from this source when asked, then Install. Grant the camera
+            permission on first launch.
+          files: fitsize-latest.apk
+
+  ios:
+    name: iOS build (no signing)
+    if: github.event_name == 'workflow_dispatch' && inputs.build_ios
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.6
+          cache: true
+
+      - run: flutter pub get
+      - run: flutter build ios --release --no-codesign
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fitsize-ios-unsigned-app
+          path: build/ios/iphoneos/Runner.app
+          retention-days: 14

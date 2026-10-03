@@ -21,8 +21,8 @@ Mac, Xcode, an iPhone on iOS 15.5 or newer, and a USB cable.
 ## 2. Get the code
 
 ```bash
-git clone -b claude/nice-planck-0pnk9t https://github.com/rujal-tuladhar/ProMax-Clinic.git
-cd ProMax-Clinic/fitsize
+git clone https://github.com/rujal-tuladhar/Camera-Size-Measurement.git
+cd Camera-Size-Measurement
 flutter pub get
 cd ios && pod install && cd ..
 ```
@@ -79,7 +79,7 @@ correct* on any card — those deltas are the data that tunes the app.
   unlocks TestFlight for sharing builds with friends.
 - The camera does not work in the iOS Simulator; use a real phone.
 - The Android build installs without any of this: the latest APK is always at
-  https://github.com/rujal-tuladhar/ProMax-Clinic/releases/download/fitsize-test/fitsize-latest.apk
+  https://github.com/rujal-tuladhar/Camera-Size-Measurement/releases/download/fitsize-test/fitsize-latest.apk
 
 ## If something breaks
 

@@ -100,7 +100,7 @@ Requires the [Flutter SDK](https://docs.flutter.dev/get-started/install)
 (built against Flutter 3.47 / Dart 3.13).
 
 ```bash
-cd fitsize
+cd Camera-Size-Measurement
 flutter pub get
 flutter test          # 86 tests should pass
 flutter analyze       # should report no issues
