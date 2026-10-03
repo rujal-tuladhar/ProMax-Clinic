@@ -1,0 +1,2264 @@
+{
+ "version": "2026.10",
+ "brands": [
+  {
+   "brand": "Nike",
+   "source": "https://www.nike.com/size-fit/mens_tops_alpha",
+   "retrieved": "2026-10-03",
+   "confidence": "high",
+   "notes": "Native cm chart with 8 cm grading. Women's bottoms use the same body waist and hip as the tops chart. Nike's rule: if bust and waist disagree, go by bust.",
+   "charts": [
+    {
+     "gender": "men",
+     "category": "tops",
+     "measure": "chest",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XXS",
+       "min": 72.0,
+       "max": 80.0
+      },
+      {
+       "label": "XS",
+       "min": 80.0,
+       "max": 88.0
+      },
+      {
+       "label": "S",
+       "min": 88.0,
+       "max": 96.0
+      },
+      {
+       "label": "M",
+       "min": 96.0,
+       "max": 104.0
+      },
+      {
+       "label": "L",
+       "min": 104.0,
+       "max": 112.0
+      },
+      {
+       "label": "XL",
+       "min": 112.0,
+       "max": 124.0
+      },
+      {
+       "label": "2XL",
+       "min": 124.0,
+       "max": 136.0
+      },
+      {
+       "label": "3XL",
+       "min": 136.0,
+       "max": 148.0
+      },
+      {
+       "label": "4XL",
+       "min": 148.0,
+       "max": 160.0
+      }
+     ]
+    },
+    {
+     "gender": "men",
+     "category": "tops",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "S",
+       "min": 73.0,
+       "max": 81.0
+      },
+      {
+       "label": "M",
+       "min": 81.0,
+       "max": 89.0
+      },
+      {
+       "label": "L",
+       "min": 89.0,
+       "max": 97.0
+      },
+      {
+       "label": "XL",
+       "min": 97.0,
+       "max": 109.0
+      },
+      {
+       "label": "2XL",
+       "min": 109.0,
+       "max": 121.0
+      },
+      {
+       "label": "3XL",
+       "min": 121.0,
+       "max": 133.0
+      },
+      {
+       "label": "4XL",
+       "min": 133.0,
+       "max": 145.0
+      }
+     ]
+    },
+    {
+     "gender": "men",
+     "category": "tops",
+     "measure": "hip",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "S",
+       "min": 88.0,
+       "max": 96.0
+      },
+      {
+       "label": "M",
+       "min": 96.0,
+       "max": 104.0
+      },
+      {
+       "label": "L",
+       "min": 104.0,
+       "max": 112.0
+      },
+      {
+       "label": "XL",
+       "min": 112.0,
+       "max": 120.0
+      },
+      {
+       "label": "2XL",
+       "min": 120.0,
+       "max": 128.0
+      },
+      {
+       "label": "3XL",
+       "min": 128.0,
+       "max": 136.0
+      },
+      {
+       "label": "4XL",
+       "min": 136.0,
+       "max": 145.0
+      }
+     ]
+    },
+    {
+     "gender": "men",
+     "category": "bottoms",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 65.0,
+       "max": 73.0
+      },
+      {
+       "label": "S",
+       "min": 73.0,
+       "max": 81.0
+      },
+      {
+       "label": "M",
+       "min": 81.0,
+       "max": 89.0
+      },
+      {
+       "label": "L",
+       "min": 89.0,
+       "max": 97.0
+      },
+      {
+       "label": "XL",
+       "min": 97.0,
+       "max": 109.0
+      },
+      {
+       "label": "2XL",
+       "min": 109.0,
+       "max": 121.0
+      }
+     ]
+    },
+    {
+     "gender": "men",
+     "category": "bottoms",
+     "measure": "hip",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 80.0,
+       "max": 88.0
+      },
+      {
+       "label": "S",
+       "min": 88.0,
+       "max": 96.0
+      },
+      {
+       "label": "M",
+       "min": 96.0,
+       "max": 104.0
+      },
+      {
+       "label": "L",
+       "min": 104.0,
+       "max": 112.0
+      },
+      {
+       "label": "XL",
+       "min": 112.0,
+       "max": 120.0
+      },
+      {
+       "label": "2XL",
+       "min": 120.0,
+       "max": 128.0
+      }
+     ]
+    },
+    {
+     "gender": "men",
+     "category": "bottoms",
+     "measure": "inseam",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 82.0,
+       "max": 82.0
+      },
+      {
+       "label": "S",
+       "min": 82.5,
+       "max": 82.5
+      },
+      {
+       "label": "M",
+       "min": 83.0,
+       "max": 83.0
+      },
+      {
+       "label": "L",
+       "min": 83.5,
+       "max": 83.5
+      },
+      {
+       "label": "XL",
+       "min": 84.0,
+       "max": 84.0
+      },
+      {
+       "label": "2XL",
+       "min": 84.5,
+       "max": 84.5
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "chest",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 76.0,
+       "max": 83.0
+      },
+      {
+       "label": "S",
+       "min": 83.0,
+       "max": 90.0
+      },
+      {
+       "label": "M",
+       "min": 90.0,
+       "max": 97.0
+      },
+      {
+       "label": "L",
+       "min": 97.0,
+       "max": 104.0
+      },
+      {
+       "label": "XL",
+       "min": 104.0,
+       "max": 114.0
+      },
+      {
+       "label": "2XL",
+       "min": 114.0,
+       "max": 124.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 60.0,
+       "max": 67.0
+      },
+      {
+       "label": "S",
+       "min": 67.0,
+       "max": 74.0
+      },
+      {
+       "label": "M",
+       "min": 74.0,
+       "max": 81.0
+      },
+      {
+       "label": "L",
+       "min": 81.0,
+       "max": 88.0
+      },
+      {
+       "label": "XL",
+       "min": 88.0,
+       "max": 98.0
+      },
+      {
+       "label": "2XL",
+       "min": 98.0,
+       "max": 108.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "hip",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 84.0,
+       "max": 91.0
+      },
+      {
+       "label": "S",
+       "min": 91.0,
+       "max": 98.0
+      },
+      {
+       "label": "M",
+       "min": 98.0,
+       "max": 105.0
+      },
+      {
+       "label": "L",
+       "min": 105.0,
+       "max": 112.0
+      },
+      {
+       "label": "XL",
+       "min": 112.0,
+       "max": 120.0
+      },
+      {
+       "label": "2XL",
+       "min": 120.0,
+       "max": 128.0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "Adidas",
+   "source": "https://www.adidas.com/us/help/size_charts",
+   "retrieved": "2026-10-03",
+   "confidence": "high",
+   "notes": "Native cm chart (EU/UK pages); the US inch chart differs by up to 1 cm. Men's bottoms share the tops waist and hip. adidas's rule: if waist and hip disagree on bottoms, go by hip.",
+   "charts": [
+    {
+     "gender": "men",
+     "category": "tops",
+     "measure": "chest",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 83.0,
+       "max": 86.0
+      },
+      {
+       "label": "S",
+       "min": 87.0,
+       "max": 92.0
+      },
+      {
+       "label": "M",
+       "min": 93.0,
+       "max": 100.0
+      },
+      {
+       "label": "L",
+       "min": 101.0,
+       "max": 108.0
+      },
+      {
+       "label": "XL",
+       "min": 109.0,
+       "max": 118.0
+      },
+      {
+       "label": "2XL",
+       "min": 119.0,
+       "max": 130.0
+      },
+      {
+       "label": "3XL",
+       "min": 131.0,
+       "max": 142.0
+      }
+     ]
+    },
+    {
+     "gender": "men",
+     "category": "tops",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 71.0,
+       "max": 74.0
+      },
+      {
+       "label": "S",
+       "min": 75.0,
+       "max": 80.0
+      },
+      {
+       "label": "M",
+       "min": 81.0,
+       "max": 88.0
+      },
+      {
+       "label": "L",
+       "min": 89.0,
+       "max": 96.0
+      },
+      {
+       "label": "XL",
+       "min": 97.0,
+       "max": 106.0
+      },
+      {
+       "label": "2XL",
+       "min": 107.0,
+       "max": 119.0
+      },
+      {
+       "label": "3XL",
+       "min": 120.0,
+       "max": 132.0
+      }
+     ]
+    },
+    {
+     "gender": "men",
+     "category": "tops",
+     "measure": "hip",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 82.0,
+       "max": 85.0
+      },
+      {
+       "label": "S",
+       "min": 86.0,
+       "max": 91.0
+      },
+      {
+       "label": "M",
+       "min": 92.0,
+       "max": 99.0
+      },
+      {
+       "label": "L",
+       "min": 100.0,
+       "max": 107.0
+      },
+      {
+       "label": "XL",
+       "min": 108.0,
+       "max": 116.0
+      },
+      {
+       "label": "2XL",
+       "min": 117.0,
+       "max": 125.0
+      },
+      {
+       "label": "3XL",
+       "min": 126.0,
+       "max": 135.0
+      }
+     ]
+    },
+    {
+     "gender": "men",
+     "category": "bottoms",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 71.0,
+       "max": 74.0
+      },
+      {
+       "label": "S",
+       "min": 75.0,
+       "max": 80.0
+      },
+      {
+       "label": "M",
+       "min": 81.0,
+       "max": 88.0
+      },
+      {
+       "label": "L",
+       "min": 89.0,
+       "max": 96.0
+      },
+      {
+       "label": "XL",
+       "min": 97.0,
+       "max": 106.0
+      },
+      {
+       "label": "2XL",
+       "min": 107.0,
+       "max": 119.0
+      },
+      {
+       "label": "3XL",
+       "min": 120.0,
+       "max": 132.0
+      }
+     ]
+    },
+    {
+     "gender": "men",
+     "category": "bottoms",
+     "measure": "hip",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 82.0,
+       "max": 85.0
+      },
+      {
+       "label": "S",
+       "min": 86.0,
+       "max": 91.0
+      },
+      {
+       "label": "M",
+       "min": 92.0,
+       "max": 99.0
+      },
+      {
+       "label": "L",
+       "min": 100.0,
+       "max": 107.0
+      },
+      {
+       "label": "XL",
+       "min": 108.0,
+       "max": 116.0
+      },
+      {
+       "label": "2XL",
+       "min": 117.0,
+       "max": 125.0
+      },
+      {
+       "label": "3XL",
+       "min": 126.0,
+       "max": 135.0
+      }
+     ]
+    },
+    {
+     "gender": "men",
+     "category": "bottoms",
+     "measure": "inseam",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 81.0,
+       "max": 81.0
+      },
+      {
+       "label": "S",
+       "min": 81.5,
+       "max": 81.5
+      },
+      {
+       "label": "M",
+       "min": 82.0,
+       "max": 82.0
+      },
+      {
+       "label": "L",
+       "min": 82.5,
+       "max": 82.5
+      },
+      {
+       "label": "XL",
+       "min": 83.0,
+       "max": 83.0
+      },
+      {
+       "label": "2XL",
+       "min": 82.5,
+       "max": 82.5
+      },
+      {
+       "label": "3XL",
+       "min": 82.0,
+       "max": 82.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "chest",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "2XS",
+       "min": 73.0,
+       "max": 76.0
+      },
+      {
+       "label": "XS",
+       "min": 77.0,
+       "max": 82.0
+      },
+      {
+       "label": "S",
+       "min": 83.0,
+       "max": 88.0
+      },
+      {
+       "label": "M",
+       "min": 89.0,
+       "max": 94.0
+      },
+      {
+       "label": "L",
+       "min": 95.0,
+       "max": 101.0
+      },
+      {
+       "label": "XL",
+       "min": 102.0,
+       "max": 109.0
+      },
+      {
+       "label": "2XL",
+       "min": 110.0,
+       "max": 118.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "2XS",
+       "min": 57.0,
+       "max": 60.0
+      },
+      {
+       "label": "XS",
+       "min": 61.0,
+       "max": 66.0
+      },
+      {
+       "label": "S",
+       "min": 67.0,
+       "max": 72.0
+      },
+      {
+       "label": "M",
+       "min": 73.0,
+       "max": 78.0
+      },
+      {
+       "label": "L",
+       "min": 79.0,
+       "max": 85.0
+      },
+      {
+       "label": "XL",
+       "min": 86.0,
+       "max": 94.0
+      },
+      {
+       "label": "2XL",
+       "min": 95.0,
+       "max": 104.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "hip",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "2XS",
+       "min": 82.0,
+       "max": 85.0
+      },
+      {
+       "label": "XS",
+       "min": 86.0,
+       "max": 91.0
+      },
+      {
+       "label": "S",
+       "min": 92.0,
+       "max": 97.0
+      },
+      {
+       "label": "M",
+       "min": 98.0,
+       "max": 103.0
+      },
+      {
+       "label": "L",
+       "min": 104.0,
+       "max": 110.0
+      },
+      {
+       "label": "XL",
+       "min": 111.0,
+       "max": 117.0
+      },
+      {
+       "label": "2XL",
+       "min": 118.0,
+       "max": 125.0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "Zara",
+   "source": "https://www.zara.com/us/en/help/size-guide",
+   "retrieved": "2026-10-03",
+   "confidence": "low",
+   "notes": "Point-value chart (one value per size, EU 34-42 = XS-XL) read from aggregator copies of Zara's guide. Zara publishes detailed measurements per product. Women's only.",
+   "charts": [
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "chest",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 82.0,
+       "max": 82.0
+      },
+      {
+       "label": "S",
+       "min": 86.5,
+       "max": 86.5
+      },
+      {
+       "label": "M",
+       "min": 90.0,
+       "max": 90.0
+      },
+      {
+       "label": "L",
+       "min": 96.0,
+       "max": 96.0
+      },
+      {
+       "label": "XL",
+       "min": 102.0,
+       "max": 102.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 62.0,
+       "max": 62.0
+      },
+      {
+       "label": "S",
+       "min": 66.0,
+       "max": 66.0
+      },
+      {
+       "label": "M",
+       "min": 70.0,
+       "max": 70.0
+      },
+      {
+       "label": "L",
+       "min": 76.0,
+       "max": 76.0
+      },
+      {
+       "label": "XL",
+       "min": 82.0,
+       "max": 82.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "hip",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 90.0,
+       "max": 90.0
+      },
+      {
+       "label": "S",
+       "min": 94.0,
+       "max": 94.0
+      },
+      {
+       "label": "M",
+       "min": 98.0,
+       "max": 98.0
+      },
+      {
+       "label": "L",
+       "min": 104.0,
+       "max": 104.0
+      },
+      {
+       "label": "XL",
+       "min": 110.0,
+       "max": 110.0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "H&M",
+   "source": "https://www2.hm.com/en_us/customer-service/sizeguide/ladies.html",
+   "retrieved": "2026-10-03",
+   "confidence": "high",
+   "notes": "Women's chart only, native cm. Note the 6 cm jump between L (bust up to 104) and XL (from 110). The scraped men's chart was dropped as implausible.",
+   "charts": [
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "chest",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 76.0,
+       "max": 80.0
+      },
+      {
+       "label": "S",
+       "min": 84.0,
+       "max": 88.0
+      },
+      {
+       "label": "M",
+       "min": 92.0,
+       "max": 96.0
+      },
+      {
+       "label": "L",
+       "min": 100.0,
+       "max": 104.0
+      },
+      {
+       "label": "XL",
+       "min": 110.0,
+       "max": 116.0
+      },
+      {
+       "label": "2XL",
+       "min": 122.0,
+       "max": 128.0
+      },
+      {
+       "label": "3XL",
+       "min": 134.0,
+       "max": 140.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 60.0,
+       "max": 64.0
+      },
+      {
+       "label": "S",
+       "min": 68.0,
+       "max": 72.0
+      },
+      {
+       "label": "M",
+       "min": 76.0,
+       "max": 80.0
+      },
+      {
+       "label": "L",
+       "min": 84.0,
+       "max": 88.0
+      },
+      {
+       "label": "XL",
+       "min": 94.0,
+       "max": 100.0
+      },
+      {
+       "label": "2XL",
+       "min": 106.0,
+       "max": 112.0
+      },
+      {
+       "label": "3XL",
+       "min": 118.0,
+       "max": 124.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "bottoms",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 60.0,
+       "max": 64.0
+      },
+      {
+       "label": "S",
+       "min": 68.0,
+       "max": 72.0
+      },
+      {
+       "label": "M",
+       "min": 76.0,
+       "max": 80.0
+      },
+      {
+       "label": "L",
+       "min": 84.0,
+       "max": 88.0
+      },
+      {
+       "label": "XL",
+       "min": 94.0,
+       "max": 100.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "bottoms",
+     "measure": "hip",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 84.0,
+       "max": 88.0
+      },
+      {
+       "label": "S",
+       "min": 92.0,
+       "max": 96.0
+      },
+      {
+       "label": "M",
+       "min": 100.0,
+       "max": 104.0
+      },
+      {
+       "label": "L",
+       "min": 108.0,
+       "max": 112.0
+      },
+      {
+       "label": "XL",
+       "min": 117.0,
+       "max": 122.0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "Uniqlo",
+   "source": "https://www.uniqlo.com/us/en/size-chart",
+   "retrieved": "2026-10-03",
+   "confidence": "medium",
+   "notes": "Women's Body Size Chart (not the garment chart). Uniqlo sizing runs about one size smaller than US norms. Men's chart not retrieved.",
+   "charts": [
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "chest",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 78.0,
+       "max": 83.0
+      },
+      {
+       "label": "S",
+       "min": 83.0,
+       "max": 88.0
+      },
+      {
+       "label": "M",
+       "min": 88.0,
+       "max": 94.0
+      },
+      {
+       "label": "L",
+       "min": 94.0,
+       "max": 101.0
+      },
+      {
+       "label": "XL",
+       "min": 101.0,
+       "max": 109.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 60.0,
+       "max": 65.0
+      },
+      {
+       "label": "S",
+       "min": 65.0,
+       "max": 70.0
+      },
+      {
+       "label": "M",
+       "min": 70.0,
+       "max": 76.0
+      },
+      {
+       "label": "L",
+       "min": 76.0,
+       "max": 83.0
+      },
+      {
+       "label": "XL",
+       "min": 83.0,
+       "max": 91.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "bottoms",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 60.0,
+       "max": 65.0
+      },
+      {
+       "label": "S",
+       "min": 65.0,
+       "max": 70.0
+      },
+      {
+       "label": "M",
+       "min": 70.0,
+       "max": 76.0
+      },
+      {
+       "label": "L",
+       "min": 76.0,
+       "max": 83.0
+      },
+      {
+       "label": "XL",
+       "min": 83.0,
+       "max": 91.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "bottoms",
+     "measure": "hip",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 87.0,
+       "max": 91.0
+      },
+      {
+       "label": "S",
+       "min": 91.0,
+       "max": 96.0
+      },
+      {
+       "label": "M",
+       "min": 96.0,
+       "max": 102.0
+      },
+      {
+       "label": "L",
+       "min": 102.0,
+       "max": 108.0
+      },
+      {
+       "label": "XL",
+       "min": 108.0,
+       "max": 114.0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "Levi's",
+   "source": "https://www.levi.com/GB/en_GB/info/sizechart",
+   "retrieved": "2026-10-03",
+   "confidence": "medium",
+   "notes": "Women's bottoms only, point values for W24-W30 (US 00-24 and wider sizes not read). Men's charts not retrieved.",
+   "charts": [
+    {
+     "gender": "women",
+     "category": "bottoms",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "W24",
+       "min": 64.0,
+       "max": 64.0
+      },
+      {
+       "label": "W25",
+       "min": 66.0,
+       "max": 66.0
+      },
+      {
+       "label": "W26",
+       "min": 69.0,
+       "max": 69.0
+      },
+      {
+       "label": "W27",
+       "min": 72.0,
+       "max": 72.0
+      },
+      {
+       "label": "W28",
+       "min": 74.0,
+       "max": 74.0
+      },
+      {
+       "label": "W29",
+       "min": 77.0,
+       "max": 77.0
+      },
+      {
+       "label": "W30",
+       "min": 79.0,
+       "max": 79.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "bottoms",
+     "measure": "hip",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "W24",
+       "min": 86.0,
+       "max": 86.0
+      },
+      {
+       "label": "W25",
+       "min": 89.0,
+       "max": 89.0
+      },
+      {
+       "label": "W26",
+       "min": 91.5,
+       "max": 91.5
+      },
+      {
+       "label": "W27",
+       "min": 94.0,
+       "max": 94.0
+      },
+      {
+       "label": "W28",
+       "min": 96.5,
+       "max": 96.5
+      },
+      {
+       "label": "W29",
+       "min": 99.0,
+       "max": 99.0
+      },
+      {
+       "label": "W30",
+       "min": 101.0,
+       "max": 101.0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "Gap",
+   "source": "https://www.gap.com/browse/sizeChart.do",
+   "retrieved": "2026-10-03",
+   "confidence": "medium",
+   "notes": "Published in inches (converted to cm) with about 2.5 cm gaps between letter sizes. Women's only; the jeans chart was not fully read, so bottoms use the body chart.",
+   "charts": [
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "chest",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XXS",
+       "min": 76.8,
+       "max": 79.4
+      },
+      {
+       "label": "XS",
+       "min": 81.9,
+       "max": 84.5
+      },
+      {
+       "label": "S",
+       "min": 87.0,
+       "max": 89.5
+      },
+      {
+       "label": "M",
+       "min": 92.1,
+       "max": 94.6
+      },
+      {
+       "label": "L",
+       "min": 98.4,
+       "max": 102.2
+      },
+      {
+       "label": "XL",
+       "min": 106.7,
+       "max": 111.1
+      },
+      {
+       "label": "XXL",
+       "min": 116.2,
+       "max": 121.3
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XXS",
+       "min": 61.0,
+       "max": 62.9
+      },
+      {
+       "label": "XS",
+       "min": 64.8,
+       "max": 67.3
+      },
+      {
+       "label": "S",
+       "min": 69.9,
+       "max": 72.4
+      },
+      {
+       "label": "M",
+       "min": 74.9,
+       "max": 77.5
+      },
+      {
+       "label": "L",
+       "min": 81.3,
+       "max": 85.1
+      },
+      {
+       "label": "XL",
+       "min": 90.2,
+       "max": 95.3
+      },
+      {
+       "label": "XXL",
+       "min": 100.3,
+       "max": 105.4
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "hip",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XXS",
+       "min": 84.5,
+       "max": 87.0
+      },
+      {
+       "label": "XS",
+       "min": 89.5,
+       "max": 92.1
+      },
+      {
+       "label": "S",
+       "min": 94.6,
+       "max": 97.2
+      },
+      {
+       "label": "M",
+       "min": 99.7,
+       "max": 102.2
+      },
+      {
+       "label": "L",
+       "min": 106.0,
+       "max": 109.9
+      },
+      {
+       "label": "XL",
+       "min": 114.9,
+       "max": 120.0
+      },
+      {
+       "label": "XXL",
+       "min": 125.1,
+       "max": 130.2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "Lululemon",
+   "source": "https://shop.lululemon.com/help/size-guide",
+   "retrieved": "2026-10-03",
+   "confidence": "low",
+   "notes": "Point-value chart in US numeric sizes (M is about 8). Regional tables disagree by about 2 cm and the tops chart is less reliable than bottoms. Women's only.",
+   "charts": [
+    {
+     "gender": "women",
+     "category": "bottoms",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "0",
+       "min": 54.6,
+       "max": 54.6
+      },
+      {
+       "label": "2",
+       "min": 58.4,
+       "max": 58.4
+      },
+      {
+       "label": "4",
+       "min": 63.5,
+       "max": 63.5
+      },
+      {
+       "label": "6",
+       "min": 68.6,
+       "max": 68.6
+      },
+      {
+       "label": "8",
+       "min": 73.7,
+       "max": 73.7
+      },
+      {
+       "label": "10",
+       "min": 78.7,
+       "max": 78.7
+      },
+      {
+       "label": "12",
+       "min": 83.8,
+       "max": 83.8
+      },
+      {
+       "label": "14",
+       "min": 88.9,
+       "max": 88.9
+      },
+      {
+       "label": "16",
+       "min": 96.5,
+       "max": 96.5
+      },
+      {
+       "label": "18",
+       "min": 104.1,
+       "max": 104.1
+      },
+      {
+       "label": "20",
+       "min": 109.2,
+       "max": 109.2
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "bottoms",
+     "measure": "hip",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "0",
+       "min": 80.0,
+       "max": 80.0
+      },
+      {
+       "label": "2",
+       "min": 83.8,
+       "max": 83.8
+      },
+      {
+       "label": "4",
+       "min": 88.9,
+       "max": 88.9
+      },
+      {
+       "label": "6",
+       "min": 94.0,
+       "max": 94.0
+      },
+      {
+       "label": "8",
+       "min": 99.1,
+       "max": 99.1
+      },
+      {
+       "label": "10",
+       "min": 104.1,
+       "max": 104.1
+      },
+      {
+       "label": "12",
+       "min": 109.2,
+       "max": 109.2
+      },
+      {
+       "label": "14",
+       "min": 114.3,
+       "max": 114.3
+      },
+      {
+       "label": "16",
+       "min": 119.4,
+       "max": 119.4
+      },
+      {
+       "label": "18",
+       "min": 124.5,
+       "max": 124.5
+      },
+      {
+       "label": "20",
+       "min": 129.5,
+       "max": 129.5
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "chest",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "0",
+       "min": 72.0,
+       "max": 72.0
+      },
+      {
+       "label": "2",
+       "min": 76.0,
+       "max": 76.0
+      },
+      {
+       "label": "4",
+       "min": 79.0,
+       "max": 79.0
+      },
+      {
+       "label": "6",
+       "min": 84.0,
+       "max": 84.0
+      },
+      {
+       "label": "8",
+       "min": 89.0,
+       "max": 89.0
+      },
+      {
+       "label": "10",
+       "min": 94.0,
+       "max": 94.0
+      },
+      {
+       "label": "12",
+       "min": 102.0,
+       "max": 102.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "0",
+       "min": 55.0,
+       "max": 55.0
+      },
+      {
+       "label": "2",
+       "min": 58.0,
+       "max": 58.0
+      },
+      {
+       "label": "4",
+       "min": 61.0,
+       "max": 61.0
+      },
+      {
+       "label": "6",
+       "min": 66.0,
+       "max": 66.0
+      },
+      {
+       "label": "8",
+       "min": 71.0,
+       "max": 71.0
+      },
+      {
+       "label": "10",
+       "min": 76.0,
+       "max": 76.0
+      },
+      {
+       "label": "12",
+       "min": 84.0,
+       "max": 84.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "hip",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "0",
+       "min": 80.0,
+       "max": 80.0
+      },
+      {
+       "label": "2",
+       "min": 84.0,
+       "max": 84.0
+      },
+      {
+       "label": "4",
+       "min": 86.0,
+       "max": 86.0
+      },
+      {
+       "label": "6",
+       "min": 91.0,
+       "max": 91.0
+      },
+      {
+       "label": "8",
+       "min": 97.0,
+       "max": 97.0
+      },
+      {
+       "label": "10",
+       "min": 102.0,
+       "max": 102.0
+      },
+      {
+       "label": "12",
+       "min": 109.0,
+       "max": 109.0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "Under Armour",
+   "source": "https://www.underarmour.com/en-us/t/size-guide/mens-tops/",
+   "retrieved": "2026-10-03",
+   "confidence": "medium",
+   "notes": "Men's tops only, published in inches (converted). No hip chart, so bottoms go by waist. Women's chart not retrieved.",
+   "charts": [
+    {
+     "gender": "men",
+     "category": "tops",
+     "measure": "chest",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 78.7,
+       "max": 86.4
+      },
+      {
+       "label": "S",
+       "min": 86.4,
+       "max": 94.0
+      },
+      {
+       "label": "M",
+       "min": 94.0,
+       "max": 104.1
+      },
+      {
+       "label": "L",
+       "min": 104.1,
+       "max": 111.8
+      },
+      {
+       "label": "XL",
+       "min": 111.8,
+       "max": 121.9
+      },
+      {
+       "label": "XXL",
+       "min": 121.9,
+       "max": 132.1
+      },
+      {
+       "label": "3XL",
+       "min": 132.1,
+       "max": 142.2
+      },
+      {
+       "label": "4XL",
+       "min": 142.2,
+       "max": 152.4
+      },
+      {
+       "label": "5XL",
+       "min": 152.4,
+       "max": 162.6
+      }
+     ]
+    },
+    {
+     "gender": "men",
+     "category": "tops",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 71.1,
+       "max": 73.7
+      },
+      {
+       "label": "S",
+       "min": 73.7,
+       "max": 78.7
+      },
+      {
+       "label": "M",
+       "min": 78.7,
+       "max": 86.4
+      },
+      {
+       "label": "L",
+       "min": 86.4,
+       "max": 94.0
+      },
+      {
+       "label": "XL",
+       "min": 94.0,
+       "max": 104.1
+      },
+      {
+       "label": "XXL",
+       "min": 104.1,
+       "max": 114.3
+      },
+      {
+       "label": "3XL",
+       "min": 114.3,
+       "max": 127.0
+      },
+      {
+       "label": "4XL",
+       "min": 127.0,
+       "max": 137.2
+      },
+      {
+       "label": "5XL",
+       "min": 137.2,
+       "max": 149.9
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "Amazon Essentials",
+   "source": "https://www.mysizeguide.com/chart/amazon-essentials/womens-tops",
+   "retrieved": "2026-10-03",
+   "confidence": "low",
+   "notes": "Third-party copy of the women's tops chart (inches converted) with 2.5 cm gaps between every size. Amazon publishes charts per product only.",
+   "charts": [
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "chest",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 81.3,
+       "max": 83.8
+      },
+      {
+       "label": "S",
+       "min": 86.4,
+       "max": 88.9
+      },
+      {
+       "label": "M",
+       "min": 91.4,
+       "max": 94.0
+      },
+      {
+       "label": "L",
+       "min": 97.8,
+       "max": 101.6
+      },
+      {
+       "label": "XL",
+       "min": 105.4,
+       "max": 109.2
+      },
+      {
+       "label": "XXL",
+       "min": 113.0,
+       "max": 116.8
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 61.0,
+       "max": 63.5
+      },
+      {
+       "label": "S",
+       "min": 66.0,
+       "max": 68.6
+      },
+      {
+       "label": "M",
+       "min": 71.1,
+       "max": 73.7
+      },
+      {
+       "label": "L",
+       "min": 77.5,
+       "max": 81.3
+      },
+      {
+       "label": "XL",
+       "min": 85.1,
+       "max": 88.9
+      },
+      {
+       "label": "XXL",
+       "min": 92.7,
+       "max": 96.5
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "hip",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XS",
+       "min": 87.6,
+       "max": 90.2
+      },
+      {
+       "label": "S",
+       "min": 92.7,
+       "max": 95.3
+      },
+      {
+       "label": "M",
+       "min": 97.8,
+       "max": 100.3
+      },
+      {
+       "label": "L",
+       "min": 104.1,
+       "max": 108.0
+      },
+      {
+       "label": "XL",
+       "min": 111.8,
+       "max": 115.6
+      },
+      {
+       "label": "XXL",
+       "min": 119.4,
+       "max": 123.2
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "ASOS",
+   "source": "https://www.asos.com/discover/size-charts/women/",
+   "retrieved": "2026-10-03",
+   "confidence": "medium",
+   "notes": "Point-value chart in UK sizes (US = UK minus 4). ASOS measures hips 20 cm below the waist, so its hip sizes are not directly comparable with other brands. Women's only.",
+   "charts": [
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "chest",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "UK4",
+       "min": 78.0,
+       "max": 78.0
+      },
+      {
+       "label": "UK6",
+       "min": 80.5,
+       "max": 80.5
+      },
+      {
+       "label": "UK8",
+       "min": 83.0,
+       "max": 83.0
+      },
+      {
+       "label": "UK10",
+       "min": 88.0,
+       "max": 88.0
+      },
+      {
+       "label": "UK12",
+       "min": 93.0,
+       "max": 93.0
+      },
+      {
+       "label": "UK14",
+       "min": 98.0,
+       "max": 98.0
+      },
+      {
+       "label": "UK16",
+       "min": 103.0,
+       "max": 103.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "UK4",
+       "min": 60.0,
+       "max": 60.0
+      },
+      {
+       "label": "UK6",
+       "min": 62.5,
+       "max": 62.5
+      },
+      {
+       "label": "UK8",
+       "min": 65.0,
+       "max": 65.0
+      },
+      {
+       "label": "UK10",
+       "min": 70.0,
+       "max": 70.0
+      },
+      {
+       "label": "UK12",
+       "min": 75.0,
+       "max": 75.0
+      },
+      {
+       "label": "UK14",
+       "min": 80.0,
+       "max": 80.0
+      },
+      {
+       "label": "UK16",
+       "min": 85.0,
+       "max": 85.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "bottoms",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "UK4",
+       "min": 60.0,
+       "max": 60.0
+      },
+      {
+       "label": "UK6",
+       "min": 62.5,
+       "max": 62.5
+      },
+      {
+       "label": "UK8",
+       "min": 65.0,
+       "max": 65.0
+      },
+      {
+       "label": "UK10",
+       "min": 70.0,
+       "max": 70.0
+      },
+      {
+       "label": "UK12",
+       "min": 75.0,
+       "max": 75.0
+      },
+      {
+       "label": "UK14",
+       "min": 80.0,
+       "max": 80.0
+      },
+      {
+       "label": "UK16",
+       "min": 85.0,
+       "max": 85.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "bottoms",
+     "measure": "hip",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "UK4",
+       "min": 83.5,
+       "max": 83.5
+      },
+      {
+       "label": "UK6",
+       "min": 86.0,
+       "max": 86.0
+      },
+      {
+       "label": "UK8",
+       "min": 88.5,
+       "max": 88.5
+      },
+      {
+       "label": "UK10",
+       "min": 93.5,
+       "max": 93.5
+      },
+      {
+       "label": "UK12",
+       "min": 98.5,
+       "max": 98.5
+      },
+      {
+       "label": "UK14",
+       "min": 103.5,
+       "max": 103.5
+      },
+      {
+       "label": "UK16",
+       "min": 108.5,
+       "max": 108.5
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "brand": "Mango",
+   "source": "https://shop.mango.com/us/help/size-guide",
+   "retrieved": "2026-10-03",
+   "confidence": "medium",
+   "notes": "Point-value chart, native cm (4 cm steps to S, then 6 cm). Women's only.",
+   "charts": [
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "chest",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XXS",
+       "min": 78.0,
+       "max": 78.0
+      },
+      {
+       "label": "XS",
+       "min": 82.0,
+       "max": 82.0
+      },
+      {
+       "label": "S",
+       "min": 86.0,
+       "max": 86.0
+      },
+      {
+       "label": "M",
+       "min": 92.0,
+       "max": 92.0
+      },
+      {
+       "label": "L",
+       "min": 98.0,
+       "max": 98.0
+      },
+      {
+       "label": "XL",
+       "min": 104.0,
+       "max": 104.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "tops",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XXS",
+       "min": 59.0,
+       "max": 59.0
+      },
+      {
+       "label": "XS",
+       "min": 62.0,
+       "max": 62.0
+      },
+      {
+       "label": "S",
+       "min": 66.0,
+       "max": 66.0
+      },
+      {
+       "label": "M",
+       "min": 72.0,
+       "max": 72.0
+      },
+      {
+       "label": "L",
+       "min": 78.0,
+       "max": 78.0
+      },
+      {
+       "label": "XL",
+       "min": 85.0,
+       "max": 85.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "bottoms",
+     "measure": "waist",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XXS",
+       "min": 59.0,
+       "max": 59.0
+      },
+      {
+       "label": "XS",
+       "min": 62.0,
+       "max": 62.0
+      },
+      {
+       "label": "S",
+       "min": 66.0,
+       "max": 66.0
+      },
+      {
+       "label": "M",
+       "min": 72.0,
+       "max": 72.0
+      },
+      {
+       "label": "L",
+       "min": 78.0,
+       "max": 78.0
+      },
+      {
+       "label": "XL",
+       "min": 85.0,
+       "max": 85.0
+      }
+     ]
+    },
+    {
+     "gender": "women",
+     "category": "bottoms",
+     "measure": "hip",
+     "unit": "cm",
+     "sizes": [
+      {
+       "label": "XXS",
+       "min": 86.0,
+       "max": 86.0
+      },
+      {
+       "label": "XS",
+       "min": 90.0,
+       "max": 90.0
+      },
+      {
+       "label": "S",
+       "min": 94.0,
+       "max": 94.0
+      },
+      {
+       "label": "M",
+       "min": 100.0,
+       "max": 100.0
+      },
+      {
+       "label": "L",
+       "min": 106.0,
+       "max": 106.0
+      },
+      {
+       "label": "XL",
+       "min": 112.0,
+       "max": 112.0
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

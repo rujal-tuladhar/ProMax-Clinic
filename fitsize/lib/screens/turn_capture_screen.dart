@@ -28,6 +28,27 @@ MeasurementResult measureTurnInIsolate(
 const Duration _detectInterval = Duration(milliseconds: 150);
 const Duration _burstGap = Duration(milliseconds: 90);
 
+/// Mean brightness (0..255) of a live frame for the low-light gate, sampled
+/// from `planes[0]` with [meanLuma]. Same logic as the two-view screen.
+///
+/// On Android (NV21) planes[0] is the Y plane, so the sampled mean is luma
+/// itself. On iOS (BGRA8888) it is the interleaved B,G,R,A bytes: the mean
+/// of the colour bytes approximates luma well enough for a brightness
+/// threshold, but the alpha byte is a constant 255 that would lift an
+/// all-bytes mean by ~64 and keep the gate from ever firing, so sampling
+/// starts at the first G byte and steps a multiple of 4 — every sample is
+/// green (≈59% of luma), never alpha. A frame with nothing to judge reads
+/// as bright so the gate never blocks on malformed input.
+double _frameLuma(CameraImage image) {
+  if (image.planes.isEmpty) return 255;
+  final bytes = image.planes[0].bytes;
+  if (image.format.group == ImageFormatGroup.bgra8888) {
+    if (bytes.length < 2) return 255;
+    return meanLuma(Uint8List.sublistView(bytes, 1), stride: 100);
+  }
+  return meanLuma(bytes);
+}
+
 /// Stills captured per stop; the clearest (most confident pose) is kept.
 const int _shotsPerStop = 2;
 
@@ -245,6 +266,17 @@ class _TurnCaptureScreenState extends State<TurnCaptureScreen>
 
   Future<void> _detect(CameraImage image, CameraController camera) async {
     try {
+      // Low-light gate first: a dark frame cannot be segmented reliably, so
+      // skip pose detection and coach towards light. The controller treats
+      // it like any failing check (resets the stability window) and speaks
+      // instructionFor(lowLight).
+      if (isTooDark(_frameLuma(image))) {
+        _turn.onPoseCheck(
+          const PoseCheckResult([PoseIssue.lowLight]),
+          pitchDegrees: _tilt.latestPitch,
+        );
+        return;
+      }
       final detected = await _livePose.detectFromCameraImage(
         image,
         camera.description,
@@ -513,7 +545,8 @@ class _TurnCaptureScreenState extends State<TurnCaptureScreen>
           const SizedBox(height: 12),
           Text(
             'You will turn slowly all the way around, pausing at each spoken '
-            'cue while a photo is taken — ${_turn.stops} in total. More '
+            'cue while a photo is taken — ${_turn.stops} in total. Keep your '
+            'feet a little apart so there is a gap between your legs. More '
             'angles means a more accurate measurement than the two-photo '
             'scan. Everything stays on your phone.',
             textAlign: TextAlign.center,

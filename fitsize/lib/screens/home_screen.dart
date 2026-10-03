@@ -55,6 +55,12 @@ class _HomeScreenState extends State<HomeScreen> {
     await _load();
   }
 
+  Future<void> _openMySizes(MeasurementResult result) async {
+    await Navigator.of(context).pushNamed('/my-sizes', arguments: result);
+    // The fit preference can be changed on that screen.
+    await _load();
+  }
+
   @override
   Widget build(BuildContext context) {
     final units = _profile?.units ?? UnitSystem.metric;
@@ -88,6 +94,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: AppSpacing.md),
                     _LatestTiles(result: latest, units: units),
+                    const SizedBox(height: AppSpacing.md),
+                    _BrandSizesCard(onTap: () => _openMySizes(latest)),
                   ] else
                     const _EmptyState(),
                   const SizedBox(height: AppSpacing.xl),
@@ -509,6 +517,69 @@ class _BigNumberTile extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Entry to the brand size passport (`/my-sizes`); shown once a result
+/// exists.
+class _BrandSizesCard extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _BrandSizesCard({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Card(
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(18, 16, 14, 16),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: scheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(AppRadii.chip),
+                ),
+                child: Icon(
+                  Icons.storefront_rounded,
+                  color: scheme.onPrimaryContainer,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Your size at 12 brands',
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Nike, Zara, H&M, Uniqlo and more — from their '
+                      'published charts.',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: scheme.onSurfaceVariant,
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'models/models.dart';
 import 'screens/capture_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/my_sizes_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/results_screen.dart';
 import 'screens/turn_capture_screen.dart';
@@ -41,6 +42,7 @@ class FitSizeApp extends StatelessWidget {
         '/capture': (_) => const CaptureScreen(),
         '/capture-turn': (_) => const TurnCaptureScreen(),
         '/results': (_) => const ResultsScreen(),
+        '/my-sizes': (_) => const MySizesScreen(),
       },
     );
   }

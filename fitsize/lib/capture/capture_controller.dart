@@ -69,9 +69,14 @@ class CaptureController extends ChangeNotifier {
 
   static const String _introInstruction =
       'Prop your phone upright at hip height, 2–3 metres away, and wear '
-      'tight clothing. Tap Start when you are ready.';
+      'tight clothing. Stand with your feet a little apart. Tap Start when '
+      'you are ready.';
+
+  /// Feet a little apart: the inseam is measured from the gap between the
+  /// legs, so the front gate rejects a closed stance ([PoseIssue.feetTogether]).
   static const String _frontPrompt =
-      'Face the camera, stand tall, and raise your arms away from your body.';
+      'Face the camera, stand tall with your feet a little apart, and raise '
+      'your arms away from your body.';
   static const String _sidePrompt =
       'Great. Now turn to your left and raise your arms forward.';
   static const String _holdStillPrompt = 'Perfect. Hold that pose.';

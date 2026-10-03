@@ -139,9 +139,15 @@ class PoseOverlayPainter extends CustomPainter {
     return _smoothClosed(mapped);
   }
 
-  /// Front view, A-pose: the right half of the figure from the top of the
-  /// head down the raised arm, torso and leg to the crotch; mirrored for the
-  /// left half. Coordinates are fractions of body height, x from centre.
+  /// Front view, A-pose with the feet a little apart: the right half of the
+  /// figure from the top of the head down the raised arm, torso and leg to
+  /// the crotch; mirrored for the left half. Coordinates are fractions of
+  /// body height, x from centre.
+  ///
+  /// The legs splay so the silhouette shows a clear gap between them: the
+  /// inseam is measured from that gap, and the front gate rejects a closed
+  /// stance (ankle centres < 0.08 × body height apart). The guide puts the
+  /// ankle centres ~0.13 × body height apart, comfortably past the gate.
   static List<Offset> _frontPoints() {
     const half = <Offset>[
       Offset(0.000, 0.000), // crown
@@ -167,18 +173,18 @@ class PoseOverlayPainter extends CustomPainter {
       Offset(0.090, 0.410), // waist
       Offset(0.112, 0.470),
       Offset(0.126, 0.520), // hip
-      Offset(0.112, 0.590), // thigh
-      Offset(0.094, 0.690),
-      Offset(0.084, 0.745), // knee
-      Offset(0.082, 0.840), // calf
-      Offset(0.070, 0.945), // ankle
-      Offset(0.078, 0.992), // foot (outer)
-      Offset(0.040, 1.000), // foot (inner)
-      Offset(0.032, 0.950),
-      Offset(0.036, 0.850),
-      Offset(0.040, 0.745), // inner knee
-      Offset(0.030, 0.640),
-      Offset(0.012, 0.572),
+      Offset(0.118, 0.590), // thigh
+      Offset(0.104, 0.690),
+      Offset(0.094, 0.745), // knee
+      Offset(0.092, 0.840), // calf
+      Offset(0.082, 0.945), // ankle
+      Offset(0.092, 0.992), // foot (outer)
+      Offset(0.050, 1.000), // foot (inner)
+      Offset(0.046, 0.950),
+      Offset(0.048, 0.850),
+      Offset(0.052, 0.745), // inner knee
+      Offset(0.040, 0.640),
+      Offset(0.020, 0.572), // inner thigh, just below the crotch
     ];
     return _mirrorClosed(half, crotch: const Offset(0, 0.558));
   }

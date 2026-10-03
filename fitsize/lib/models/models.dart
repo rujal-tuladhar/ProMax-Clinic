@@ -9,16 +9,63 @@ enum Sex { male, female, other }
 
 enum UnitSystem { metric, imperial }
 
-/// The body parts FitSize measures in v1.
-enum BodyPart { chest, waist, hip }
+/// The body parts FitSize measures.
+///
+/// The first three (the torso circumferences) are measured directly from
+/// silhouette widths; the rest were added in v2: lengths from pose
+/// landmarks / the silhouette, plus regression-derived circumferences.
+enum BodyPart {
+  chest,
+  waist,
+  hip,
+  neck,
+  shoulder,
+  sleeve,
+  shirtSleeve,
+  inseam,
+  thigh,
+}
+
+/// Whether a part is a girth (tape wrapped around) or a straight length.
+enum MeasurementKind { circumference, length }
 
 extension BodyPartLabel on BodyPart {
   String get label => switch (this) {
         BodyPart.chest => 'Chest',
         BodyPart.waist => 'Waist',
         BodyPart.hip => 'Hip',
+        BodyPart.neck => 'Neck',
+        BodyPart.shoulder => 'Shoulder width',
+        BodyPart.sleeve => 'Sleeve (shoulder to wrist)',
+        BodyPart.shirtSleeve => 'Shirt sleeve (centre back to wrist)',
+        BodyPart.inseam => 'Inseam',
+        BodyPart.thigh => 'Thigh',
       };
+
+  /// chest/waist/hip/neck/thigh are circumferences; the rest are lengths.
+  MeasurementKind get kind => switch (this) {
+        BodyPart.chest ||
+        BodyPart.waist ||
+        BodyPart.hip ||
+        BodyPart.neck ||
+        BodyPart.thigh =>
+          MeasurementKind.circumference,
+        BodyPart.shoulder ||
+        BodyPart.sleeve ||
+        BodyPart.shirtSleeve ||
+        BodyPart.inseam =>
+          MeasurementKind.length,
+      };
+
+  bool get isCircumference => kind == MeasurementKind.circumference;
 }
+
+/// Parts measured directly from silhouette widths (front + side / turn).
+const List<BodyPart> kTorsoParts = [
+  BodyPart.chest,
+  BodyPart.waist,
+  BodyPart.hip,
+];
 
 /// Which capture view a frame belongs to.
 enum CaptureView { front, side }
@@ -47,11 +94,17 @@ class UserProfile {
   /// Optional; profiles saved before this field existed read as regular.
   final FitPreference fit;
 
+  /// Tap-to-correct calibration: tape value minus app value, per part (cm).
+  /// Added to every future measurement of that part. Optional; profiles
+  /// saved before this field existed read as empty.
+  final Map<BodyPart, double> offsetsCm;
+
   const UserProfile({
     required this.heightCm,
     required this.sex,
     this.units = UnitSystem.metric,
     this.fit = FitPreference.regular,
+    this.offsetsCm = const {},
   });
 
   /// Copy with the given fields replaced.
@@ -60,12 +113,14 @@ class UserProfile {
     Sex? sex,
     UnitSystem? units,
     FitPreference? fit,
+    Map<BodyPart, double>? offsetsCm,
   }) =>
       UserProfile(
         heightCm: heightCm ?? this.heightCm,
         sex: sex ?? this.sex,
         units: units ?? this.units,
         fit: fit ?? this.fit,
+        offsetsCm: offsetsCm ?? this.offsetsCm,
       );
 
   Map<String, dynamic> toJson() => {
@@ -73,6 +128,9 @@ class UserProfile {
         'sex': sex.name,
         'units': units.name,
         'fit': fit.name,
+        'offsetsCm': {
+          for (final e in offsetsCm.entries) e.key.name: e.value,
+        },
       };
 
   static UserProfile? fromJson(Map<String, dynamic>? json) {
@@ -85,7 +143,25 @@ class UserProfile {
       units: UnitSystem.values.asNameMap()[json['units']] ?? UnitSystem.metric,
       fit: FitPreference.values.asNameMap()[json['fit']] ??
           FitPreference.regular,
+      offsetsCm: _offsetsFromJson(json['offsetsCm']),
     );
+  }
+
+  /// Parses `{partName: cm}`; unknown parts and non-numeric values are
+  /// skipped, anything that is not a map reads as no offsets.
+  static Map<BodyPart, double> _offsetsFromJson(Object? raw) {
+    if (raw is! Map) return const {};
+    final names = BodyPart.values.asNameMap();
+    final out = <BodyPart, double>{};
+    for (final entry in raw.entries) {
+      final part = names[entry.key];
+      final value = entry.value;
+      if (part == null || value is! num) continue;
+      final cm = value.toDouble();
+      if (!cm.isFinite) continue;
+      out[part] = cm;
+    }
+    return out;
   }
 }
 
@@ -215,11 +291,17 @@ class PartMeasurement {
   /// 0..1 quality score (frame agreement, landmark confidence).
   final double confidence;
 
+  /// True when estimated from other measurements by regression (neck from
+  /// chest, thigh from hip, shirt sleeve from shoulder + sleeve) rather
+  /// than measured from the frames directly.
+  final bool derived;
+
   const PartMeasurement({
     required this.part,
     required this.valueCm,
     required this.stdDevCm,
     required this.confidence,
+    this.derived = false,
   });
 
   Map<String, dynamic> toJson() => {
@@ -227,6 +309,7 @@ class PartMeasurement {
         'valueCm': valueCm,
         'stdDevCm': stdDevCm,
         'confidence': confidence,
+        'derived': derived,
       };
 
   static PartMeasurement fromJson(Map<String, dynamic> json) =>
@@ -235,6 +318,7 @@ class PartMeasurement {
         valueCm: (json['valueCm'] as num).toDouble(),
         stdDevCm: (json['stdDevCm'] as num?)?.toDouble() ?? 0,
         confidence: (json['confidence'] as num?)?.toDouble() ?? 0,
+        derived: json['derived'] as bool? ?? false,
       );
 }
 
