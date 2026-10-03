@@ -119,4 +119,180 @@ void main() {
       expect(r.perPart.values, everyElement('–'));
     });
   });
+
+  group('fit preference biases borderline lookups', () {
+    String chestWithFit(double cm, FitPreference fit) =>
+        SizeRecommender.recommend(
+          resultWith({BodyPart.chest: cm}),
+          Sex.male,
+          fit: fit,
+        ).perPart[BodyPart.chest]!;
+
+    test('bias is -3 / 0 / +3 cm for slim / regular / relaxed', () {
+      expect(SizeRecommender.biasFor(FitPreference.slim), -3);
+      expect(SizeRecommender.biasFor(FitPreference.regular), 0);
+      expect(SizeRecommender.biasFor(FitPreference.relaxed), 3);
+      expect(SizeRecommender.fitBiasCm, 3);
+    });
+
+    test('omitting fit behaves exactly like regular', () {
+      final result = resultWith({
+        BodyPart.chest: 95,
+        BodyPart.waist: 88,
+        BodyPart.hip: 103,
+      });
+      final implicit = SizeRecommender.recommend(result, Sex.male);
+      final explicit = SizeRecommender.recommend(
+        result,
+        Sex.male,
+        fit: FitPreference.regular,
+      );
+      expect(implicit.topSize, explicit.topSize);
+      expect(implicit.bottomSize, explicit.bottomSize);
+      expect(implicit.perPart, explicit.perPart);
+    });
+
+    test('just above a boundary: slim rounds down, regular/relaxed hold', () {
+      // Male chest 95 sits 1 cm above the S/M boundary (94).
+      expect(chestWithFit(95, FitPreference.regular), 'M');
+      expect(chestWithFit(95, FitPreference.slim), 'S');
+      expect(chestWithFit(95, FitPreference.relaxed), 'M');
+    });
+
+    test('just below a boundary: relaxed rounds up, regular/slim hold', () {
+      // Male chest 100 sits 2 cm below the M/L boundary (102).
+      expect(chestWithFit(100, FitPreference.regular), 'M');
+      expect(chestWithFit(100, FitPreference.relaxed), 'L');
+      expect(chestWithFit(100, FitPreference.slim), 'M');
+    });
+
+    test('a mid-range measurement is unchanged under every preference', () {
+      // 98 is the centre of male M (94–102): ±3 stays inside the range.
+      for (final fit in FitPreference.values) {
+        expect(chestWithFit(98, fit), 'M', reason: fit.name);
+      }
+    });
+
+    test('edge semantics follow the lower-inclusive ranges', () {
+      // Slim: exactly 3 cm above the boundary lands ON it -> still M.
+      expect(chestWithFit(97, FitPreference.slim), 'M');
+      expect(chestWithFit(96.9, FitPreference.slim), 'S');
+      // Relaxed: exactly 3 cm below the boundary lands ON it -> flips to L.
+      expect(chestWithFit(99, FitPreference.relaxed), 'L');
+      expect(chestWithFit(98.9, FitPreference.relaxed), 'M');
+    });
+
+    test('bias applies to waist and hip, so bottomSize can flip too', () {
+      // Male waist 88 is L (87–95) by 1 cm; hip 103 is M (96–104) by 1 cm.
+      final result = resultWith({BodyPart.waist: 88, BodyPart.hip: 103});
+
+      final regular = SizeRecommender.recommend(result, Sex.male);
+      expect(regular.perPart[BodyPart.waist], 'L');
+      expect(regular.perPart[BodyPart.hip], 'M');
+      expect(regular.bottomSize, 'L');
+
+      final slim = SizeRecommender.recommend(
+        result,
+        Sex.male,
+        fit: FitPreference.slim,
+      );
+      expect(slim.perPart[BodyPart.waist], 'M'); // 85
+      expect(slim.perPart[BodyPart.hip], 'M'); // 100
+      expect(slim.bottomSize, 'M');
+
+      final relaxed = SizeRecommender.recommend(
+        result,
+        Sex.male,
+        fit: FitPreference.relaxed,
+      );
+      expect(relaxed.perPart[BodyPart.waist], 'L'); // 91
+      expect(relaxed.perPart[BodyPart.hip], 'L'); // 106
+      expect(relaxed.bottomSize, 'L');
+    });
+
+    test('works with the Sex.other midpoint chart', () {
+      // Other chest bounds: [83, 91, 99, 107, 115]; 92 is 1 cm into M.
+      String other(FitPreference fit) => SizeRecommender.recommend(
+            resultWith({BodyPart.chest: 92}),
+            Sex.other,
+            fit: fit,
+          ).topSize;
+      expect(other(FitPreference.regular), 'M');
+      expect(other(FitPreference.slim), 'S');
+      expect(other(FitPreference.relaxed), 'M');
+    });
+
+    test('missing parts stay dashes under any fit', () {
+      for (final fit in FitPreference.values) {
+        final r = SizeRecommender.recommend(
+          resultWith({BodyPart.chest: 96}),
+          Sex.male,
+          fit: fit,
+        );
+        expect(r.perPart[BodyPart.waist], '–', reason: fit.name);
+        expect(r.perPart[BodyPart.hip], '–', reason: fit.name);
+        expect(r.bottomSize, '–', reason: fit.name);
+      }
+    });
+  });
+
+  group('FitPreference on UserProfile', () {
+    test('defaults to regular and keeps the existing constructor working',
+        () {
+      const profile = UserProfile(heightCm: 172, sex: Sex.female);
+      expect(profile.fit, FitPreference.regular);
+    });
+
+    test('copyWith replaces only the given fields', () {
+      const profile = UserProfile(
+        heightCm: 172,
+        sex: Sex.female,
+        units: UnitSystem.imperial,
+      );
+      final slim = profile.copyWith(fit: FitPreference.slim);
+      expect(slim.fit, FitPreference.slim);
+      expect(slim.heightCm, 172);
+      expect(slim.sex, Sex.female);
+      expect(slim.units, UnitSystem.imperial);
+      expect(profile.fit, FitPreference.regular, reason: 'original untouched');
+    });
+
+    test('round-trips through JSON', () {
+      const profile = UserProfile(
+        heightCm: 180,
+        sex: Sex.male,
+        fit: FitPreference.relaxed,
+      );
+      final json = profile.toJson();
+      expect(json['fit'], 'relaxed');
+      final back = UserProfile.fromJson(json)!;
+      expect(back.fit, FitPreference.relaxed);
+      expect(back.heightCm, 180);
+      expect(back.sex, Sex.male);
+    });
+
+    test('profiles saved before the field existed read as regular', () {
+      final legacy = UserProfile.fromJson({
+        'heightCm': 165,
+        'sex': 'female',
+        'units': 'metric',
+      })!;
+      expect(legacy.fit, FitPreference.regular);
+    });
+
+    test('an unknown stored value falls back to regular', () {
+      final odd = UserProfile.fromJson({
+        'heightCm': 165,
+        'sex': 'female',
+        'fit': 'baggy',
+      })!;
+      expect(odd.fit, FitPreference.regular);
+    });
+
+    test('labels read Slim / Regular / Relaxed', () {
+      expect(FitPreference.slim.label, 'Slim');
+      expect(FitPreference.regular.label, 'Regular');
+      expect(FitPreference.relaxed.label, 'Relaxed');
+    });
+  });
 }

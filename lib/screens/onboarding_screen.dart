@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../models/models.dart';
 import '../services/profile_store.dart';
+import '../theme/app_theme.dart';
 
 /// Collects the user profile FitSize needs before it can measure anything:
 /// standing height (the single scale reference — must be accurate), sex
@@ -112,8 +113,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       return;
     }
     if (cm < _minHeightCm || cm > _maxHeightCm) {
-      setState(() => _error =
-          'Height must be between 100 and 230 cm (about 3\'3" to 7\'7").');
+      setState(
+        () => _error =
+            'Height must be between 100 and 230 cm (about 3\'3" to 7\'7").',
+      );
       return;
     }
     setState(() {
@@ -137,154 +140,301 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final firstRun = widget.onDone != null;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('About you')),
+      // First run: no app bar, the page heading carries the screen. Editing
+      // later (pushed as a route): a bar with the back arrow.
+      appBar: firstRun ? null : AppBar(title: const Text('Your profile')),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            Text(
-              'Two photos. Your real size.',
-              style: theme.textTheme.headlineSmall
-                  ?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'FitSize uses your height to turn pixels into centimetres, '
-              'so enter it accurately — measured without shoes.',
-              style: theme.textTheme.bodyMedium
-                  ?.copyWith(color: scheme.onSurfaceVariant),
-            ),
-            const SizedBox(height: 24),
-            Text('Height', style: theme.textTheme.titleMedium),
-            const SizedBox(height: 8),
-            SegmentedButton<UnitSystem>(
-              segments: const [
-                ButtonSegment(
-                  value: UnitSystem.metric,
-                  label: Text('cm'),
-                  icon: Icon(Icons.straighten),
-                ),
-                ButtonSegment(
-                  value: UnitSystem.imperial,
-                  label: Text('ft + in'),
-                  icon: Icon(Icons.square_foot),
-                ),
-              ],
-              selected: {_units},
-              onSelectionChanged: (selection) => _switchUnits(selection.first),
-            ),
-            const SizedBox(height: 12),
-            if (_units == UnitSystem.metric)
-              TextField(
-                controller: _cmController,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[\d.,]')),
-                ],
-                decoration: const InputDecoration(
-                  labelText: 'Height',
-                  suffixText: 'cm',
-                  border: OutlineInputBorder(),
-                ),
-              )
-            else
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _feetController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
-                      decoration: const InputDecoration(
-                        labelText: 'Feet',
-                        suffixText: 'ft',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextField(
-                      controller: _inchesController,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
-                      ],
-                      decoration: const InputDecoration(
-                        labelText: 'Inches',
-                        suffixText: 'in',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            if (_error != null) ...[
-              const SizedBox(height: 8),
+        // A plain column in a scroll view (not a lazy ListView) so the whole
+        // short form, privacy note included, is always built.
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.gutter,
+            AppSpacing.sm,
+            AppSpacing.gutter,
+            AppSpacing.xl,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const _StepHint(current: 1),
+              const SizedBox(height: AppSpacing.lg),
               Text(
-                _error!,
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: scheme.error),
+                'Two photos.\nYour real size.',
+                style: theme.textTheme.headlineLarge,
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                'FitSize turns pixels into centimetres using your height, so '
+                'enter it accurately — measured standing tall, without shoes.',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              _FormSection(
+                icon: Icons.height_rounded,
+                title: 'Height',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SegmentedButton<UnitSystem>(
+                      segments: const [
+                        ButtonSegment(
+                          value: UnitSystem.metric,
+                          label: Text('cm'),
+                          icon: Icon(Icons.straighten_rounded),
+                        ),
+                        ButtonSegment(
+                          value: UnitSystem.imperial,
+                          label: Text('ft + in'),
+                          icon: Icon(Icons.square_foot_rounded),
+                        ),
+                      ],
+                      selected: {_units},
+                      showSelectedIcon: false,
+                      onSelectionChanged: (selection) =>
+                          _switchUnits(selection.first),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    if (_units == UnitSystem.metric)
+                      TextField(
+                        controller: _cmController,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[\d.,]')),
+                        ],
+                        style: theme.textTheme.headlineSmall,
+                        decoration: const InputDecoration(
+                          labelText: 'Height',
+                          hintText: '170',
+                          suffixText: 'cm',
+                        ),
+                      )
+                    else
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _feetController,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
+                              style: theme.textTheme.headlineSmall,
+                              decoration: const InputDecoration(
+                                labelText: 'Feet',
+                                hintText: '5',
+                                suffixText: 'ft',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.md),
+                          Expanded(
+                            child: TextField(
+                              controller: _inchesController,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp(r'[\d.]'),
+                                ),
+                              ],
+                              style: theme.textTheme.headlineSmall,
+                              decoration: const InputDecoration(
+                                labelText: 'Inches',
+                                hintText: '7',
+                                suffixText: 'in',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    if (_error != null) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.error_outline_rounded,
+                            size: 16,
+                            color: scheme.error,
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              _error!,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: scheme.error,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _FormSection(
+                icon: Icons.person_outline_rounded,
+                title: 'Sex',
+                subtitle: 'Used only to pick the matching size chart.',
+                child: SegmentedButton<Sex>(
+                  segments: const [
+                    ButtonSegment(value: Sex.female, label: Text('Female')),
+                    ButtonSegment(value: Sex.male, label: Text('Male')),
+                    ButtonSegment(value: Sex.other, label: Text('Other')),
+                  ],
+                  selected: {_sex},
+                  showSelectedIcon: false,
+                  onSelectionChanged: (selection) =>
+                      setState(() => _sex = selection.first),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: scheme.secondaryContainer,
+                  borderRadius: BorderRadius.circular(AppRadii.field),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.lock_outline_rounded,
+                      size: 20,
+                      color: scheme.onSecondaryContainer,
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: Text(
+                        'Private by design: your photos are processed on your '
+                        'phone and never uploaded. Only your measurements are '
+                        'kept, on this device.',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: scheme.onSecondaryContainer,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
-            const SizedBox(height: 24),
-            Text('Sex', style: theme.textTheme.titleMedium),
-            const SizedBox(height: 4),
-            Text(
-              'Used only to pick the matching size chart.',
-              style: theme.textTheme.bodySmall
-                  ?.copyWith(color: scheme.onSurfaceVariant),
+          ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(
+          AppSpacing.gutter,
+          AppSpacing.sm,
+          AppSpacing.gutter,
+          AppSpacing.lg,
+        ),
+        child: FilledButton.icon(
+          onPressed: _saving ? null : _save,
+          icon: const Icon(Icons.arrow_forward_rounded),
+          label: Text(firstRun ? 'Save and continue' : 'Save changes'),
+        ),
+      ),
+    );
+  }
+}
+
+/// "Step 1 of 3" pill with three progress dots and what comes next.
+class _StepHint extends StatelessWidget {
+  final int current;
+
+  const _StepHint({required this.current});
+
+  static const List<String> _steps = ['About you', 'Photos', 'Your size'];
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Row(
+      children: [
+        for (var i = 1; i <= _steps.length; i++) ...[
+          if (i > 1) const SizedBox(width: 6),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: i == current ? 22 : 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: i <= current ? scheme.primary : scheme.outlineVariant,
+              borderRadius: BorderRadius.circular(999),
             ),
-            const SizedBox(height: 8),
-            SegmentedButton<Sex>(
-              segments: const [
-                ButtonSegment(value: Sex.female, label: Text('Female')),
-                ButtonSegment(value: Sex.male, label: Text('Male')),
-                ButtonSegment(value: Sex.other, label: Text('Other')),
+          ),
+        ],
+        const SizedBox(width: AppSpacing.md),
+        Text(
+          'Step $current of ${_steps.length} · ${_steps[current - 1]}',
+          style: theme.textTheme.labelMedium?.copyWith(
+            color: scheme.onSurfaceVariant,
+            letterSpacing: 0.3,
+          ),
+        ),
+        const Spacer(),
+        if (current < _steps.length)
+          Text(
+            'Next: ${_steps[current]}',
+            style: theme.textTheme.labelMedium?.copyWith(color: scheme.primary),
+          ),
+      ],
+    );
+  }
+}
+
+/// A titled card wrapping one group of inputs.
+class _FormSection extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final Widget child;
+
+  const _FormSection({
+    required this.icon,
+    required this.title,
+    required this.child,
+    this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 20, color: scheme.primary),
+                const SizedBox(width: AppSpacing.sm),
+                Text(title, style: theme.textTheme.titleMedium),
               ],
-              selected: {_sex},
-              onSelectionChanged: (selection) =>
-                  setState(() => _sex = selection.first),
             ),
-            const SizedBox(height: 28),
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: scheme.secondaryContainer,
-                borderRadius: BorderRadius.circular(12),
+            if (subtitle != null) ...[
+              const SizedBox(height: 2),
+              Text(
+                subtitle!,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
               ),
-              child: Row(
-                children: [
-                  Icon(Icons.lock_outline, color: scheme.onSecondaryContainer),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Private by design: your photos are processed on your '
-                      'phone and never uploaded. Only your measurements are '
-                      'kept, on this device.',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: scheme.onSecondaryContainer,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: _saving ? null : _save,
-              icon: const Icon(Icons.check),
-              label: const Text('Save and continue'),
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-            ),
+            ],
+            const SizedBox(height: AppSpacing.md),
+            child,
           ],
         ),
       ),

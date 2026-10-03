@@ -42,6 +42,7 @@ dependencies:
   shared_preferences: ^2.5.5
   path_provider: ^2.1.6
   image: ^4.10.1
+  share_plus: ^13.3.1
 
 dev_dependencies:
   flutter_test:
@@ -53,6 +54,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -95,3 +97,19 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# Launcher icons. Source PNGs are drawn by `dart run tool/make_icon.dart`;
+# regenerate the platform icons with `dart run flutter_launcher_icons`.
+flutter_launcher_icons:
+  image_path: "assets/icon/icon.png"
+  image_path_android: "assets/icon/icon_android.png"
+  image_path_ios: "assets/icon/icon.png"
+  android: true
+  ios: true
+  min_sdk_android: 24
+  remove_alpha_ios: true
+  background_color_ios: "#0E6B5B"
+  adaptive_icon_background: "#0E6B5B"
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
+  adaptive_icon_foreground_inset: 10
+  adaptive_icon_monochrome: "assets/icon/icon_foreground.png"
