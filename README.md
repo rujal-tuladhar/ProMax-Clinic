@@ -24,6 +24,37 @@ Both modes share the same on-device pipeline (pose, segmentation, scale from
 height, calibration, size recommendation) and produce the same result
 screen.
 
+## What v2 adds (built from the competitive research)
+
+- **The tailor set.** Besides chest/waist/hip the engine now estimates
+  inseam (silhouette crotch search, anthropometric fallback), sleeve in both
+  tailoring conventions (shoulder→wrist and centre-back→wrist), shoulder
+  width, and regression-based neck and thigh (shown as *estimated*). Results
+  include garment-aware sizes: jeans **W×L**, dress shirt **neck × sleeve**.
+- **Better circumference math.** The ellipse model under-read waist ≈5 cm
+  and hip ≈8 cm versus a tape; circumference now uses a linear
+  breadth/depth → tape model fitted on ANSUR II (≈6,000 measured bodies),
+  per sex. Constants are documented in `lib/engine/circumference.dart`.
+- **Brand Size Passport.** `assets/data/brand_charts.json` holds versioned,
+  source-dated, confidence-flagged charts for 12 brands (Nike, Adidas, Zara,
+  H&M, Uniqlo, Levi's, Gap, lululemon, Under Armour, Amazon Essentials, ASOS,
+  Mango). `lib/engine/brand_sizes.dart` resolves your size per brand with
+  nearest-band/gap logic, point charts, fit bias, a *between sizes* flag and
+  normal-CDF probabilities. See the **My Sizes** screen.
+- **Honest sizing.** Sizes read as probabilities ("M (78%) · L (22%)")
+  from each measurement's spread, not a single letter.
+- **Tap-to-correct.** Any measurement can be corrected with a tape; the
+  delta is stored as a personal calibration and applied to future scans.
+- **Capture that explains itself.** Low-light gate on the live frame
+  ("Find a brighter spot"), feet-apart rule so the inseam is measurable.
+- **Privacy receipt.** After each scan: photos processed N · uploaded 0 ·
+  stored 0.
+
+⚠️ The brand charts were compiled from published charts via search summaries
+(the research sandbox could not open brand pages). Each brand carries a
+confidence tag and source URL in the asset; **re-verify every chart on the
+brand's site before shipping sizing claims.**
+
 ## How it works
 
 1. **Onboarding** — enter your height (the metric scale reference), sex and
@@ -141,9 +172,19 @@ lighting, repeat scans.
   the "Precision measure" mode (`lib/engine/rotation_engine.dart`,
   `lib/capture/turn_capture_controller.dart`,
   `lib/screens/turn_capture_screen.dart`).
+- **✅ Done — v2 differentiators**: tailor measurements, ANSUR
+  circumference model, Brand Size Passport, probabilistic sizes,
+  tap-to-correct, low-light gate, privacy receipt (see above).
+- **Next — validation study**: 70–120 people across body types, trained
+  tape measurer, Bland-Altman; publish per-cohort accuracy in-app and tune
+  the calibration constants. Required before any accuracy claim.
+- **Next — "Did it fit?" loop**: log brand/garment/size and the outcome;
+  learn a per-brand correction; show returns avoided.
 - **Next — more turn stops / continuous frames**: capture ~150 frames
   through a continuous turn rather than 12 discrete stops, with a motion
   watchdog, for further noise averaging.
+- **Next — more brands and size systems**: Shein, Temu, Target, Old Navy,
+  Abercrombie; US/UK/EU/JP conversions; per-product charts for Zara/Uniqlo.
 - **v2+ — learned body model**: fit a parametric 3D body model to the
   silhouettes instead of per-row geometry (note: SMPL/SMPL-X need a
   commercial licence via Meshcapade).
