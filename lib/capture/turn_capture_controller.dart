@@ -66,9 +66,14 @@ class TurnCaptureController extends ChangeNotifier {
   static const String _introInstruction =
       'Prop your phone upright at hip height, about 2 metres away, with your '
       'whole body in view. You will turn slowly all the way around, pausing '
-      'when asked. Tap Start when you are ready.';
+      'when asked, with your feet a little apart. Tap Start when you are '
+      'ready.';
+
+  /// Feet a little apart: the engine measures the inseam from the gap
+  /// between the legs on the front-facing frames of the turn.
   static const String _firstStopPrompt =
-      'Face the camera, arms slightly away from your body, and hold still.';
+      'Face the camera with your feet a little apart, arms slightly away '
+      'from your body, and hold still.';
   static const String _holdStillPrompt = 'Hold still.';
   static const String _tiltPrompt = 'Stand the phone upright';
   static const String _capturingPrompt = 'Hold still — capturing.';

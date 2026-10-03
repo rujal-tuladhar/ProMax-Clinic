@@ -30,6 +30,29 @@ MeasurementResult measureInIsolate(
 /// Minimum interval between live pose detections fed to ML Kit.
 const Duration _detectInterval = Duration(milliseconds: 150);
 
+/// Mean brightness (0..255) of a live frame for the low-light gate, sampled
+/// from `planes[0]` with [meanLuma].
+///
+/// Both stream formats have a usable first plane. On Android (NV21) it is
+/// the Y plane, so the sampled mean is luma itself. On iOS (BGRA8888) it is
+/// the interleaved B,G,R,A bytes: the mean of the colour bytes approximates
+/// luma well enough for a brightness threshold, but the alpha byte is a
+/// constant 255 that would lift an all-bytes mean by ~64 and keep the gate
+/// from ever firing, so sampling starts at the first G byte and steps a
+/// multiple of 4 — every sample is green (≈59% of luma), never alpha.
+///
+/// A frame with no bytes to judge reads as bright so the gate never blocks
+/// on malformed input; pose detection then fails on its own terms.
+double _frameLuma(CameraImage image) {
+  if (image.planes.isEmpty) return 255;
+  final bytes = image.planes[0].bytes;
+  if (image.format.group == ImageFormatGroup.bgra8888) {
+    if (bytes.length < 2) return 255;
+    return meanLuma(Uint8List.sublistView(bytes, 1), stride: 100);
+  }
+  return meanLuma(bytes);
+}
+
 /// Pause between the stills of one burst.
 const Duration _burstGap = Duration(milliseconds: 120);
 
@@ -257,6 +280,19 @@ class _CaptureScreenState extends State<CaptureScreen>
   Future<void> _detect(
       CameraImage image, CameraController camera, CaptureView view) async {
     try {
+      // Low-light gate first: a dark frame cannot be segmented reliably and
+      // running pose detection on it is wasted work, so skip ML Kit and
+      // coach the person towards light instead. The controller treats this
+      // like any failing check (resets the stability window, aborts a
+      // countdown) and speaks instructionFor(lowLight).
+      if (isTooDark(_frameLuma(image))) {
+        _capture.onPoseCheck(
+          const PoseCheckResult([PoseIssue.lowLight]),
+          view,
+          pitchDegrees: _tilt.latestPitch,
+        );
+        return;
+      }
       final detected = await _livePose.detectFromCameraImage(
         image,
         camera.description,
@@ -583,6 +619,8 @@ class _CaptureScreenState extends State<CaptureScreen>
             'back and make sure your whole body is visible. Tight clothing '
             'gives the most accurate result.\n\n'
             'Voice coaching will guide you through a front and a side photo. '
+            'For the front photo stand with your feet a little apart — the '
+            'gap between your legs is how we measure your inseam. '
             'Everything stays on your phone.',
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.white70, fontSize: 15, height: 1.4),

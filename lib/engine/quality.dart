@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import '../models/models.dart';
 
@@ -9,11 +10,13 @@ enum PoseIssue {
   tooFar,
   tooClose,
   notCentered,
+  lowLight,
   notFacingCamera,
   notSideways,
   armsNotRaised,
   armsTooHigh,
   notUpright,
+  feetTogether,
 }
 
 /// Result of a live pose check; [ok] is true when [issues] is empty.
@@ -42,6 +45,13 @@ const List<Landmark> _coreLandmarks = [
   Landmark.leftAnkle,
   Landmark.rightAnkle,
 ];
+
+/// Minimum ankle x-separation (fraction of body height) for the legs to be
+/// separable in the silhouette.
+const double _minAnkleSeparation = 0.08;
+
+/// Mean Y-plane luma below which a frame counts as too dark to segment.
+const double _minMeanLuma = 60;
 
 /// Head landmarks used to find the top of the body.
 const List<Landmark> _headLandmarks = [
@@ -131,7 +141,9 @@ List<PoseIssue> _sorted(List<PoseIssue> issues) {
 /// (else notFacingCamera); both arm angles (elbow relative to the
 /// vertical through the shoulder) between 25° and 75°
 /// (armsNotRaised / armsTooHigh); shoulder-mid above hip-mid by
-/// >= 0.2 * body height (notUpright).
+/// >= 0.2 * body height (notUpright); ankle x-separation >= 0.08 * body
+/// height (else feetTogether — the legs must be separable for the inseam
+/// crotch search).
 PoseCheckResult checkFrontPose(
     BodyPose pose, int imageWidth, int imageHeight) {
   for (final l in _coreLandmarks) {
@@ -147,9 +159,15 @@ PoseCheckResult checkFrontPose(
   final rs = pose[Landmark.rightShoulder]!;
   final lh = pose[Landmark.leftHip]!;
   final rh = pose[Landmark.rightHip]!;
+  final la = pose[Landmark.leftAnkle]!;
+  final ra = pose[Landmark.rightAnkle]!;
 
   if ((ls.x - rs.x).abs() < 0.12 * framing.bodyHeight) {
     issues.add(PoseIssue.notFacingCamera);
+  }
+
+  if ((la.x - ra.x).abs() < _minAnkleSeparation * framing.bodyHeight) {
+    issues.add(PoseIssue.feetTogether);
   }
 
   var armsNotRaised = false;
@@ -252,6 +270,8 @@ String instructionFor(PoseIssue issue, CaptureView view) {
       return 'Step back from the camera';
     case PoseIssue.notCentered:
       return 'Move to the center of the frame';
+    case PoseIssue.lowLight:
+      return 'Find a brighter spot or turn on a light';
     case PoseIssue.notFacingCamera:
       return 'Face the camera straight on';
     case PoseIssue.notSideways:
@@ -266,5 +286,26 @@ String instructionFor(PoseIssue issue, CaptureView view) {
           : 'Lower your arms to shoulder height';
     case PoseIssue.notUpright:
       return 'Stand up straight and tall';
+    case PoseIssue.feetTogether:
+      return 'Stand with your feet a little apart';
   }
 }
+
+/// Mean luma (0..255) of a camera Y plane, sampling every [stride]-th byte
+/// so a 1080p plane costs ~20k reads. Returns 0 for an empty plane; a
+/// non-positive [stride] samples every byte.
+double meanLuma(Uint8List yPlane, {int stride = 97}) {
+  if (yPlane.isEmpty) return 0;
+  final step = stride < 1 ? 1 : stride;
+  var sum = 0;
+  var count = 0;
+  for (var i = 0; i < yPlane.length; i += step) {
+    sum += yPlane[i];
+    count++;
+  }
+  return sum / count;
+}
+
+/// True when the scene is too dark for reliable segmentation (mean luma
+/// below 60 of 255).
+bool isTooDark(double meanLuma) => meanLuma < _minMeanLuma;

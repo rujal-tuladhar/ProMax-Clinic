@@ -3,7 +3,15 @@ import 'dart:math' as math;
 import '../models/models.dart';
 import 'body_rows.dart';
 import 'circumference.dart';
-import 'measurement_engine.dart' show MeasurementException;
+import 'measurement_engine.dart'
+    show
+        FrontFrameInput,
+        MeasurementException,
+        agreementScore,
+        applyProfileOffsets,
+        derivedPartsFrom,
+        lengthPartsFromFrontFrames,
+        propagateCircumferenceSpread;
 import 'silhouette.dart';
 import 'stats.dart';
 
@@ -165,9 +173,15 @@ double _widthAt(double u, double v, double phaseDeg, double angleDeg) {
 /// frame is dropped (same rule as the two-view engine).
 const double _maxScaleDeviation = 0.05;
 
-/// A view counts as frontal (usable for row-fraction derivation) when the
-/// instructed yaw is within this many degrees of 0 or 180.
+/// A view counts as frontal (usable for row-fraction derivation and for the
+/// length parts) when the instructed yaw is within this many degrees of 0
+/// or 180.
 const double _frontalToleranceDeg = 20;
+
+bool _isFrontal(double angleDegrees) {
+  final yaw = angleDegrees % 180;
+  return math.min(yaw, 180 - yaw) <= _frontalToleranceDeg;
+}
 
 /// Measurement engine for the guided-turn capture mode.
 class RotationMeasurementEngine {
@@ -175,15 +189,22 @@ class RotationMeasurementEngine {
 
   const RotationMeasurementEngine({this.calibration = Calibration.standard});
 
-  /// Computes chest/waist/hip from the turn stills.
+  /// Computes chest/waist/hip (plus the v2 extra parts) from the turn stills.
   ///
   /// Per frame: silhouette -> implied cm/px scale from the profile height
   /// (5% scale-outlier rejection) -> rows located by fractions derived on
   /// the frontal-most frames -> torso width at each row. Per part, the
-  /// (angle, width) samples feed [fitEllipseWidths]; the fitted ellipse
-  /// perimeter (Ramanujan II x per-part calibration) is the circumference.
+  /// (angle, width) samples feed [fitEllipseWidths]; the fitted axes give
+  /// the circumference through [circumferenceFromWidths] with
+  /// frontWidthCm = 2a, sideDepthCm = 2b and profile.sex.
   ///
-  /// Throws [MeasurementException] when no usable geometry survives.
+  /// After the torso parts: inseam, sleeve, shirtSleeve and shoulder from
+  /// the frontal(-ish) frames (yaw within 20° of 0 or 180), then neck and
+  /// thigh flagged `derived` (0.6 × source confidence), then
+  /// `profile.offsetsCm` is added to every part. Extra parts that cannot be
+  /// estimated are omitted.
+  ///
+  /// Throws [MeasurementException] when no usable torso geometry survives.
   MeasurementResult compute({
     required List<RotationFrame> frames,
     required UserProfile profile,
@@ -222,17 +243,15 @@ class RotationMeasurementEngine {
     // the same anatomical levels.
     final fractionSamples = <RowFractions>[];
     for (final (rf, sil, _) in usable) {
-      final yaw = rf.angleDegrees % 180;
-      final offFrontal = math.min(yaw, 180 - yaw);
-      if (offFrontal > _frontalToleranceDeg) continue;
+      if (!_isFrontal(rf.angleDegrees)) continue;
       final fr = rowFractionsFromFrontFrame(rf.frame, sil);
       if (fr != null) fractionSamples.add(fr);
     }
     final fractions = medianRowFractions(fractionSamples);
 
-    // 4. (angle, width) samples per part.
+    // 4. (angle, width) samples per torso part.
     final samples = <BodyPart, List<(double, double)>>{
-      for (final part in BodyPart.values) part: [],
+      for (final part in kTorsoParts) part: [],
     };
     final poseLikelihoods = <double>[];
     var usedFrames = 0;
@@ -268,24 +287,42 @@ class RotationMeasurementEngine {
     final poseLikelihood =
         poseLikelihoods.isEmpty ? 0.0 : median(poseLikelihoods);
 
-    // 5. Ellipse fit per part.
+    // 5. Ellipse fit per torso part; the fitted full axes (2a lateral, 2b
+    // sagittal) are the breadth/depth the ANSUR II model expects.
     final parts = <PartMeasurement>[];
-    for (final part in BodyPart.values) {
+    for (final part in kTorsoParts) {
       final fit = fitEllipseWidths(samples[part]!);
       if (fit == null) continue;
-      final value =
-          ellipsePerimeter(fit.aCm, fit.bCm) * calibration.factorFor(part);
+      final frontWidth = 2 * fit.aCm;
+      final sideDepth = 2 * fit.bCm;
+      final value = circumferenceFromWidths(
+        frontWidthCm: frontWidth,
+        sideDepthCm: sideDepth,
+        part: part,
+        sex: profile.sex,
+        calibration: calibration,
+      );
       if (value <= 0) continue;
-      // First-order spread: a width error dw moves a circle's perimeter by
-      // pi*dw; the fit averages sampleCount views.
-      final spread = math.pi * fit.rmseCm / math.sqrt(fit.sampleCount);
-      final cv = spread / value;
-      final agreement = 1 - (cv * 8).clamp(0.0, 0.8).toDouble();
+      // First-order spread: the fit averages sampleCount views, so each
+      // fitted axis carries ~rmse/sqrt(n) of width error; propagate both
+      // through the model.
+      final axisSd = fit.rmseCm / math.sqrt(fit.sampleCount);
+      final spread = propagateCircumferenceSpread(
+        part: part,
+        sex: profile.sex,
+        calibration: calibration,
+        frontWidthCm: frontWidth,
+        sideDepthCm: sideDepth,
+        frontSdCm: axisSd,
+        sideSdCm: axisSd,
+      );
       parts.add(PartMeasurement(
         part: part,
         valueCm: value,
         stdDevCm: spread,
-        confidence: (agreement * poseLikelihood).clamp(0.0, 1.0).toDouble(),
+        confidence: (agreementScore(spread, value) * poseLikelihood)
+            .clamp(0.0, 1.0)
+            .toDouble(),
       ));
     }
     if (parts.isEmpty) {
@@ -293,8 +330,20 @@ class RotationMeasurementEngine {
           'Not enough angle coverage for a turn measurement');
     }
 
+    // 6. Length parts from the frontal(-ish) stills, regression-derived
+    // parts, then the user's tape corrections.
+    parts.addAll(lengthPartsFromFrontFrames(
+      <FrontFrameInput>[
+        for (final (rf, sil, scale) in usable)
+          if (_isFrontal(rf.angleDegrees))
+            (frame: rf.frame, silhouette: sil, scaleCmPerPx: scale),
+      ],
+      profile,
+    ));
+    parts.addAll(derivedPartsFrom(parts, profile.sex));
+
     return MeasurementResult(
-      parts: parts,
+      parts: applyProfileOffsets(parts, profile),
       scaleCmPerPx: median([for (final d in usable) d.$3]),
       frontFrameCount: usedFrames,
       sideFrameCount: 0,
